@@ -1,4 +1,4 @@
-from winprob.lib import point
+from src.winprob.lib import point
 
 
 @point
@@ -59,3 +59,16 @@ def match(x):
         else:
             p2 += 1
     return p1 > p2
+
+
+@point
+def match_os(x):
+    sets = [0, 0]
+    while max(sets) < 3:
+        games = [0, 0]
+        while max(games) < 6 or (abs(games[1] - games[0]) == 1 and max(games) == 6):
+            games[game(x)] += 1
+        if games[0] == games[1]:
+            games[tie_break(x)] += 1
+        sets[games[1] > games[0]] += 1
+    return sets[1] > sets[0]
