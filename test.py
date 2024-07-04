@@ -24,4 +24,4 @@ for _ in range(N):
     ts.append(time() - start_time)
 
 print(match._tree)
-print(f"took {mean(ts):.4f}s ({std(ts):.4f})")
+print(f"Took {mean(ts):.4f}s ({std(ts):.4f})")
