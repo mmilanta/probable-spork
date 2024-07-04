@@ -62,7 +62,7 @@ class Point():
             self._dfs_binary_tree(instruction_tree)
             instruction_tree[e.point].pop()
 
-    def compute_tree(self, sub_points: bool = True):
+    def compute_tree(self, sub_points: bool = True) -> None:
         if self._tree is not None:
             return
         self._tree = {}
