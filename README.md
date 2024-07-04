@@ -1,2 +1,2 @@
-# probable-spork
+# probablespork
 A python library to compute enhancing winning probability of matches composed of many smaller points. I.e. Tennis, Ping Pong, Volleybal, ...

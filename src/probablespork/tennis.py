@@ -1,4 +1,4 @@
-from src.winprob.lib import point
+from src.probablespork.lib import point
 
 
 @point

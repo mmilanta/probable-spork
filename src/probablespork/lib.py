@@ -45,7 +45,7 @@ class Point():
         except StopIteration:
             raise PointException(point=self)
 
-    def _dfs_binary_tree(self, instruction_tree: InstructionTree):
+    def _dfs_binary_tree(self, instruction_tree: InstructionTree) -> None:
         if self._tree is None:
             raise ValueError("set self._tree to {} before. Call this function by calling compute_tree")
         try:
@@ -58,9 +58,7 @@ class Point():
             instruction_tree.setdefault(e.point, [])
             instruction_tree[e.point].append(True)
             self._dfs_binary_tree(instruction_tree)
-            instruction_tree[e.point].pop()
-
-            instruction_tree[e.point].append(False)
+            instruction_tree[e.point][-1] = False
             self._dfs_binary_tree(instruction_tree)
             instruction_tree[e.point].pop()
 
