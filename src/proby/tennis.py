@@ -1,4 +1,4 @@
-from src.probablespork.lib import point
+from src.proby.lib import point
 
 
 @point

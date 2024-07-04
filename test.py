@@ -1,4 +1,4 @@
-from src.probablespork.tennis import match, game, set, tie_break
+from src.proby.tennis import match, game, set, tie_break
 from time import time
 import math
 
