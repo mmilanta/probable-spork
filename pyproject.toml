@@ -10,7 +10,7 @@ authors = [
 ]
 description = "A package to compute probailities of complex match structures."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -20,3 +20,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/mmilanta/probable-spork"
 Issues = "https://github.com/mmilanta/probable-spork/issues"
+
+[tool.ruff]
+# Set the maximum line length to 79.
+line-length = 79
