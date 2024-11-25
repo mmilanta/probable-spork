@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Callable, Iterator
 from dataclasses import dataclass
 from enum import Enum
-from polynome import Polynome, Monome, Monad
+from polynome import Polynome, Monome, Monad, SymbolicVariable
 
 
 class GameEnd(Enum):
@@ -75,10 +75,13 @@ class FrozenProbeSet:
         for point, futures in self.probes:
             for future in futures:
                 if future:
-                    polynome = polynome * Polynome(monomes=(Monome(coefficient=1, monads=(Monad(sym=point, power=1), )), ))
+                    polynome = polynome * Polynome(monomes=(Monome(coefficient=1, monads=(Monad(sym=str(point), power=1), )), ))
                 else:
-                    polynome = polynome * Polynome(monomes=(one_monome, Monome(coefficient=-1, monads=(Monad(sym=point, power=1), )), ))
+                    polynome = polynome * Polynome(monomes=(one_monome, Monome(coefficient=-1, monads=(Monad(sym=str(point), power=1), )), ))
         return polynome
+
+    def futures_len(self) -> int:
+        return sum(len(future) for _, future in self.probes)
 
 GameDirectedGraph = dict[tuple | None, dict[FrozenProbeSet, tuple | GameEnd]]
 
@@ -87,8 +90,10 @@ class Point():
     def __init__(self, run_fn: Callable[[Probe], bool]) -> None:
         self.run_fn: Callable[[Probe], bool] = run_fn
         # self._tree: dict[tuple|None, dict[InstructionTreeTuple, int]] | None = {None: {}}
-        self._directed_graph: GameDirectedGraph = {}
+        self._directed_graph: GameDirectedGraph = None
         self._path_to_state: dict[tuple, FrozenProbeSet] = {}
+        self._poly: Polynome | None = None
+        self._sym_to_point: dict[SymbolicVariable, Point] = {}
 
     def __hash__(self) -> int:
         return hash(self.run_fn)
@@ -103,7 +108,10 @@ class Point():
             raise PointException(point=self, state=state)
 
 
-    def create_dg(self) -> None:
+    def create_dg(self, compute_for_subpoints: bool = True) -> None:
+        if self._directed_graph is not None:
+            return
+        sub_points: set[Point] = set()
         self._directed_graph = {}
         to_compute: set[tuple | None] = {None}
         def _dfs(score: tuple | None, probe_set: ProbeSet):
@@ -115,6 +123,7 @@ class Point():
                 else:
                     self._directed_graph[score][probe_set.freeze()] = GameEnd.LOSE
             except PointException as e:
+                sub_points.add(e.point)
                 if e.state is None or e.state == score:
                     probe_set.probes[e.point].future.append(True)
                     _dfs(score=score, probe_set=probe_set)
@@ -125,8 +134,11 @@ class Point():
                     self._directed_graph[score][probe_set.freeze()] = e.state
                     if e.state not in self._directed_graph:
                         to_compute.add(e.state)
-                    if e.state not in self._path_to_state or sum(len(probe[1]) for probe in self._path_to_state[e.state]) < probe_set.futures_len():
+                    if e.state not in self._path_to_state or self._path_to_state[e.state].futures_len() < probe_set.futures_len():
                         self._path_to_state[e.state] = probe_set.freeze()
+            if compute_for_subpoints:
+                for point in sub_points:
+                    point.create_dg()
 
         while to_compute:
             sc = to_compute.pop()
@@ -134,7 +146,9 @@ class Point():
             self._directed_graph.setdefault(sc, {})
             _dfs(score=sc, probe_set=start_ps)
 
-    def compute_polynomial(self) -> None:
+    def _compute_polynomial(self) -> None:
+        if self._poly is not None:
+            return self._poly
         polys: dict[tuple | None, Polynome] = {}
         def _get_polynomial(calling_stack: list[tuple], root: tuple) -> Polynome:
             if root in calling_stack:
@@ -147,17 +161,40 @@ class Point():
             partian_polynoms: list[Polynome] = []
             for edge in self._directed_graph[root]:
                 edge_poly = edge.to_polynome()
+                for point, _ in edge.probes:
+                    self._sym_to_point.setdefault(str(point), point)
                 if self._directed_graph[root][edge] == GameEnd.WIN:
                     partian_polynoms.append(edge_poly)
                 elif self._directed_graph[root][edge] == GameEnd.LOSE:
                     continue
                 else:
-                    next_poly = _get_polynomial(calling_stack=calling_stack, root=self._directed_graph[root][edge])
+                    next_poly = _get_polynomial(
+                        calling_stack=calling_stack,
+                        root=self._directed_graph[root][edge]
+                    )                       
                     partian_polynoms.append(next_poly * edge_poly)
             calling_stack.pop()
             polys[root] = sum(partian_polynoms)
             return polys[root]
-        return _get_polynomial(calling_stack=[], root=None)
+        self._poly = _get_polynomial(calling_stack=[], root=None)
+        for point in self._sym_to_point.values():
+            point._compute_polynomial()
+
+    def get_poly(self, variable_points: set[Point]) -> Polynome:
+        variable_syms = set(str(point) for point in variable_points)
+        self.create_dg(compute_for_subpoints=True)
+        out_poly = self._poly
+        for sym_var in self._poly.get_sym_vars():
+            if sym_var in variable_syms:
+                continue
+            out_poly = out_poly.substitute(sym_var, self._sym_to_point[sym_var].get_poly(variable_points=variable_points))
+        return out_poly
+
+            
+
+
+
+
 
 
 def point(fn: Callable[[FrozenProbeSet], bool]) -> Point:
@@ -172,12 +209,63 @@ N = 7
 @point
 def without_advantages(x):
     pp = [0, 0]
-    while max(pp) < N or abs(pp[0] - pp[1]) < 2:
+    while max(pp) < N:
         pp[tp(x, state=tuple(pp))] += 1
-        if pp == [N, N]:
-            pp = [N - 1, N - 1]
     return pp[1] > pp[0]
 
 
-without_advantages.create_dg()
+
+@point
+def core_point(x):
+    return True
+
+
+@point
+def game(x):
+    p1 = 0
+    p2 = 0
+    while max(p1, p2) < 4 or abs(p1 - p2) < 2:
+        if core_point(x, state=(p1, p2)):
+            p1 += 1
+        else:
+            p2 += 1
+        if p1 != p2 and max(p1, p2) > 12:
+            break
+    return p1 > p2
+
+
+@point
+def tie_break(x):
+    p1 = 0
+    p2 = 0
+    while max(p1, p2) < 7 or abs(p1 - p2) < 2:
+        if core_point(x, state=(p1, p2)):
+            p1 += 1
+        else:
+            p2 += 1
+        if p1 != p2 and max(p1, p2) > 8:
+            break
+    return p1 > p2
+
+
+@point
+def set_tennis(x):
+    p1 = 0
+    p2 = 0
+    while max(p1, p2) < 6 or (abs(p1 - p2) == 1 and max(p1, p2) == 6):
+        if game(x, state=(p1, p2)):
+            p1 += 1
+        else:
+            p2 += 1
+    if p1 == p2:
+        return tie_break(x, state=(p1, p2))
+    else:
+        return p1 > p2
+
+
+
+set_tennis.create_dg()
+set_tennis.compute_polynomial()
+tp.create_dg()
+tp.compute_polynomial()
 print("Done")

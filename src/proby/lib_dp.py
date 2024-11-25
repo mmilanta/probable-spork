@@ -84,7 +84,7 @@ def play_match(score: Score, p: Probe, q: Probe) -> tuple | GameEnd:
     return score
 
 
-def create_dg(score: tuple, play_fn: Callable) -> GameDirectedGraph:
+def create_dg(score: tuple, play_fn: Callable) -> GameDirectedpoGraph:
     sym_vars = [SymbolicVariable(id=s) for s in list(signature(play_fn).parameters)[1:]]
 
     dg: GameDirectedGraph = {}

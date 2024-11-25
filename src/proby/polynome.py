@@ -71,6 +71,8 @@ class Monome:
     def call(self, **kwargs):
         return self.coefficient * np.prod(np.vstack([monad.call(**kwargs) for monad in self.monads]), axis=0)
 
+    def get_sym_vars(self) -> set[SymbolicVariable]:
+        return set(monad.sym for monad in self.monads)
 
 @dataclass(frozen=True, eq=True)
 class Polynome:
@@ -100,3 +102,7 @@ class Polynome:
     
     def call(self, **kwargs):
         return sum(monome.call(**kwargs) for monome in self.monomes)
+
+    def get_sym_vars(self) -> set[SymbolicVariable]:
+        sym_vars_sets = [monome.get_sym_vars() for monome in self.monomes]
+        return set.union(*sym_vars_sets)
