@@ -69,6 +69,25 @@ class ProbeSet:
         return " - ".join(parts)
 
 
+Score = namedtuple('Score', ['total', 'p1', 'p2'])
+def play_match(score: Score, p: Probe, q: Probe) -> tuple | GameEnd:
+    sp = p if ((score.p1 + score.p2 + 1) // 2) % 2 else q
+    if sp.run():
+        score = Score(total=score.total, p1=score.p1 + 1, p2=score.p2)
+    else:
+        score = Score(total=score.total, p1=score.p1, p2=score.p2 + 1)
+    
+    # advantages
+    # if score.p1 == score.p2 == score.total - 1:
+    #     score = Score(total=score.total, p1=score.p1 - 1, p2=score.p2 - 1)
+    
+    if score.p1 == score.total:
+        return GameEnd.WIN
+    elif score.p2 == score.total:
+        return GameEnd.LOSE
+    return score
+
+
 def create_dg(score: tuple, play_fn: Callable) -> GameDirectedGraph:
     sym_vars = [SymbolicVariable(id=s) for s in list(signature(play_fn).parameters)[1:]]
 
