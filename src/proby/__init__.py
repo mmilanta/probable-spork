@@ -1,4 +1,2 @@
-from src.proby.lib import point, Point, PointScore, PointException
-__all__ = [
-    "point", "Point", "PointScore", "PointException"
-]
+from proby.core import Probe, GameDirectedGraph
+__all__ = ["Probe", "GameDirectedGraph"]

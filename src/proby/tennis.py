@@ -1,74 +1,90 @@
-from src.proby.lib import point
+from proby.core import Probe, GameEnd
+from typing import NamedTuple
 
+class GameScore(NamedTuple):
+    p1: int
+    p2: int
+    p1_serving: bool
 
-@point
-def core_point(x):
-    return True
+init_game = GameScore(p1=0, p2=0, p1_serving=True)
 
-
-@point
-def game(x):
-    p1 = 0
-    p2 = 0
-    while max(p1, p2) < 4 or abs(p1 - p2) < 2:
-        if core_point(x):
-            p1 += 1
-        else:
-            p2 += 1
-        if p1 != p2 and max(p1, p2) > 12:
-            break
-    return p1 > p2
-
-
-@point
-def tie_break(x):
-    p1 = 0
-    p2 = 0
-    while max(p1, p2) < 7 or abs(p1 - p2) < 2:
-        if core_point(x):
-            p1 += 1
-        else:
-            p2 += 1
-        if p1 != p2 and max(p1, p2) > 8:
-            break
-    return p1 > p2
-
-
-@point
-def set(x):
-    p1 = 0
-    p2 = 0
-    while max(p1, p2) < 6 or (abs(p1 - p2) == 1 and max(p1, p2) == 6):
-        if game(x):
-            p1 += 1
-        else:
-            p2 += 1
-    if p1 == p2:
-        return tie_break(x)
+def play_game(score: GameScore, p: Probe, q: Probe) -> GameScore | GameEnd:
+    sp = p if score.p1_serving else q
+    if sp.run():
+        score = GameScore(p1=score.p1 + 1, p2=score.p2, p1_serving=score.p1_serving)
     else:
-        return p1 > p2
+        score = GameScore(p1=score.p1, p2=score.p2 + 1, p1_serving=score.p1_serving)
+    if score.p1 == score.p2 == 3:
+        score = GameScore(p1=2, p2=2, p1_serving=score.p1_serving)
+    if max(score.p1, score.p2) == 4:
+        return GameEnd.WIN if score.p1 > score.p2 else GameEnd.LOSE
+    return score
 
+N = 3
+class TieBreakScore(NamedTuple):
+    p1: int
+    p2: int
+    p1_serving: bool
 
-@point
-def match(x):
-    p1 = 0
-    p2 = 0
-    while max(p1, p2) < 3:
-        if set(x):
-            p1 += 1
+init_tie_break=TieBreakScore(p1=0, p2=0, p1_serving=True)
+
+def play_tie_break(score: TieBreakScore, p: Probe, q: Probe) -> TieBreakScore | GameEnd:
+    sp = p if score.p1_serving else q
+    if sp.run():
+        score = TieBreakScore(p1=score.p1 + 1, p2=score.p2, p1_serving=score.p1_serving)
+    else:
+        score = TieBreakScore(p1=score.p1, p2=score.p2 + 1, p1_serving=score.p1_serving)
+    if score.p1 + score.p2 % 2 == 0:
+        score = TieBreakScore(p1=score.p1, p2=score.p2, p1_serving=not score.p1_serving)
+    if score.p1 == score.p2 == N - 1:
+        score = TieBreakScore(p1=N - 2, p2=N - 2, p1_serving=score.p1_serving)
+    if max(score.p1, score.p2) == N:
+        return GameEnd.WIN if score.p1 > score.p2 else GameEnd.LOSE
+    return score
+
+class SetScore(NamedTuple):
+    p1: int
+    p2: int
+    current_game: GameScore
+    tie_break: TieBreakScore
+def play_set(score: SetScore, p: Probe, q: Probe) -> SetScore | GameEnd:
+    if score.p1 == score.p2 == 6:
+        new_set_score = play_tie_break(score=score.tie_break, p=p, q=q)
+        if new_set_score in [GameEnd.WIN, GameEnd.LOSE]:
+            return new_set_score
         else:
-            p2 += 1
-    return p1 > p2
+            return SetScore(p1=score.p1, p2=score.p2, current_game=score.current_game, tie_break=new_set_score)
+    else:
+        current_game = play_game(score=score.current_game, p=p, q=q)
+        if current_game == GameEnd.WIN:
+            score = SetScore(p1=score.p1 + 1, p2=score.p2, current_game=GameScore(p1=0, p2=0, p1_serving=not score.current_game.p1_serving), tie_break=score.tie_break)
+        elif current_game == GameEnd.LOSE:
+            score = SetScore(p1=score.p1, p2=score.p2 + 1, current_game=GameScore(p1=0, p2=0, p1_serving=not score.current_game.p1_serving), tie_break=score.tie_break)
+        else:
+            score = SetScore(p1=score.p1, p2=score.p2, current_game=current_game, tie_break=score.tie_break)
+        if max(score.p1, score.p2) >= 6 and  abs(score.p1 - score.p2) > 1:
+            return GameEnd.WIN if score.p1 > score.p2 else GameEnd.LOSE
+        return score
 
+init_set = SetScore(p1=0, p2=0, current_game=GameScore(p1=0, p2=0, p1_serving=True), tie_break=TieBreakScore(p1=0, p2=0, p1_serving=True))
 
-@point
-def match_os(x):
-    sets = [0, 0]
-    while max(sets) < 3:
-        games = [0, 0]
-        while max(games) < 6 or (abs(games[1] - games[0]) == 1 and max(games) == 6):
-            games[game(x)] += 1
-        if games[0] == games[1]:
-            games[tie_break(x)] += 1
-        sets[games[1] > games[0]] += 1
-    return sets[1] > sets[0]
+class MatchScore(NamedTuple):
+    p1: int
+    p2: int
+    current_set: SetScore
+
+def play_match(score: MatchScore, p: Probe, q: Probe) -> MatchScore | GameEnd:
+    new_set_score = play_set(score=score.current_set, p=p, q=q)
+    if new_set_score == GameEnd.WIN:
+        score=MatchScore(p1=score.p1 + 1, p2=score.p2, current_set=init_set)
+    elif new_set_score == GameEnd.LOSE:
+        score=MatchScore(p1=score.p1, p2=score.p2 + 1, current_set=init_set)
+    else:
+        score=MatchScore(p1=score.p1, p2=score.p2, current_set=new_set_score)
+    if score.p1 == 2:
+        return GameEnd.WIN
+    if score.p2 == 2:
+        return GameEnd.LOSE
+    return score
+
+init_match = MatchScore(p1=0, p2=0,current_set=init_set)
