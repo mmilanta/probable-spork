@@ -1,7 +1,6 @@
 from time import time
 from inspect import signature
 from enum import Enum
-import numpy as np
 from typing import NamedTuple, Literal, Any, Callable
 from dataclasses import dataclass
 from itertools import chain
@@ -67,10 +66,9 @@ class FrozenProbeSet:
     probes: tuple[FrozenProbe, ...]
 
     def compute_probability(
-        self, values: dict[SymbolicVariable, np.ndarray]
-    ) -> np.ndarray:
-        shape = next(iter(values.values())).shape
-        out = np.ones(shape)
+        self, values: dict[SymbolicVariable, float]
+    ) -> float:
+        out = 1.0
 
         for frozen_probe in self.probes:
             for future_step in frozen_probe.future:
@@ -79,6 +77,9 @@ class FrozenProbeSet:
                 else:
                     out = out * (1 - values[frozen_probe.sym_var])
         return out
+
+    def size(self) -> int:
+        return sum(len(probe.future) for probe in self.probes)
 
 
 class ProbeSet:
@@ -137,7 +138,8 @@ class GameDirectedGraph:
             try:
                 probes.reset()
                 n_score = play_func(score, **probes.to_params())
-                dg.setdefault(score, {})
+                if score not in dg:
+                    dg[score] = {}
                 dg[score][probes.freeze()] = n_score
                 if isinstance(n_score, tuple) and n_score not in dg:
                     to_compute.add(n_score)
@@ -157,19 +159,75 @@ class GameDirectedGraph:
             _dfs(score=to_compute.pop(), probes=probes)
         return self(dg=dg)
 
-    def compute_probability(
-        self, root: AnyTuple, **kwargs: dict[str, np.ndarray]
-    ) -> np.ndarray:
-        values: dict[SymbolicVariable, np.ndarray] = {}
-        shape = None
+    @classmethod
+    def _parse_kwargs_probes(cls, kwargs: dict[str, float]) -> dict[SymbolicVariable, float]:
+        values: dict[SymbolicVariable, float] = {}
         for k, val in kwargs.items():
             assert isinstance(k, str)
-            assert isinstance(val, np.ndarray)
+            try:
+                val = float(val)
+            except (TypeError, ValueError):
+                raise ValueError(f"Probe {k} value must be a float, or something that can be casted to float. Found {type(val)}")
+            if val > 1 or val < 0:
+                raise ValueError(f"Probe {k} value must be between 0 and 1, found {val}.")
             values[SymbolicVariable(id=k)] = val
-            if shape is None:
-                shape = val.shape
-            else:
-                assert shape == val.shape
+        return values
+
+    def compute_expected_value(
+        self, root: AnyTuple, **kwargs: dict[str, float]
+    ) -> float:
+
+        values = GameDirectedGraph._parse_kwargs_probes(kwargs)
+        means: dict[AnyTuple, Pol] = {}
+
+        def get_means(calling_stack: list[AnyTuple], root: AnyTuple) -> Pol:
+            if root in calling_stack:
+                return Pol(mons=(Mon(score=root, coeff=1.0),))
+            if root not in self.dg:
+                raise ValueError(f"state {root} not in graph must be in graph")
+            if root in means:
+                return means[root]
+            calling_stack.append(root)
+            out_means: Pol = Pol(mons=tuple([]))
+            for edge in self.dg[root]:
+                edge_probs = edge.compute_probability(values)
+                target = self.dg[root][edge]
+                if isinstance(target, tuple):
+                    next_means = get_means(
+                        calling_stack=calling_stack, root=target
+                    )
+                else:
+                    next_means = Pol(mons=tuple([]))
+                out_means += (next_means + Pol(mons=(Mon(score=None, coeff=edge.size()), ))) * edge_probs
+            calling_stack.pop()
+
+            for mon in out_means.mons:
+                if mon.score == root:
+                    out_means = Pol(
+                        mons=tuple(
+                            Mon(
+                                score=imon.score,
+                                coeff=imon.coeff / (1 - mon.coeff),
+                            )
+                            for imon in out_means.mons
+                            if imon != mon
+                        )
+                    )
+
+            if len(out_means.mons) == 1 and out_means.mons[0].score is None:
+                means[root] = out_means
+            return out_means
+
+        mean_pol = get_means(calling_stack=[], root=root)
+        assert len(mean_pol.mons) == 1 and mean_pol.mons[0].score is None
+
+        return mean_pol.mons[0].coeff
+
+    def compute_probability(
+        self, root: AnyTuple, **kwargs: dict[str, float]
+    ) -> float:
+
+        values = GameDirectedGraph._parse_kwargs_probes(kwargs)
         probs: dict[AnyTuple, Pol] = {}
 
         def get_probs(calling_stack: list[AnyTuple], root: AnyTuple) -> Pol:
@@ -221,7 +279,7 @@ class GameDirectedGraph:
 @dataclass(frozen=True, eq=True)
 class Mon:
     score: AnyTuple | None
-    coeff: np.ndarray
+    coeff: float
 
 
 @dataclass(frozen=True, eq=True)
@@ -229,9 +287,10 @@ class Pol:
     mons: tuple[Mon, ...]
 
     def __add__(self, other: "Pol") -> "Pol":
-        monome_kdx: dict[AnyTuple | None, np.ndarray] = {}
+        monome_kdx: dict[AnyTuple | None, float] = {}
         for monome in chain(self.mons, other.mons):
-            monome_kdx.setdefault(monome.score, 0)
+            if monome.score not in monome_kdx:
+                monome_kdx[monome.score] = 0
             monome_kdx[monome.score] += monome.coeff
         return Pol(
             mons=tuple(Mon(score=k, coeff=v) for k, v in monome_kdx.items())
@@ -251,9 +310,7 @@ class Pol:
             )
         )
 
-
 if __name__ == "__main__":
-
     class TieBreakScore(NamedTuple):
         p1: int
         p2: int
@@ -284,12 +341,13 @@ if __name__ == "__main__":
         if max(score.p1, score.p2) == N:
             return GameEnd.WIN if score.p1 > score.p2 else GameEnd.LOSE
         return score
-
+    t = time()
     graph = GameDirectedGraph.from_play_func(
         play_tie_break,
         starting_score=TieBreakScore(p1=0, p2=0, p1_serving=True),
     )
-
+    print(time() - t)
+    print("XXX")
     def print_dg(graph: GameDirectedGraph) -> str:
         out = ""
         for state in graph.dg:
@@ -300,10 +358,14 @@ if __name__ == "__main__":
 
     # print(print_dg(dg))
     s = time()
-    out = graph.compute_probability(
-        p=np.arange(0, 1, 0.01),
-        q=np.arange(0, 1, 0.01),
-        root=TieBreakScore(p1=0, p2=0, p1_serving=True),
-    )
-    print(time() - s)
+    out = []
+    for p in range(0, 100):
+        t = time()
+        out.append(graph.compute_expected_value(
+            p=p / 100,
+            q=p / 100,
+            root=TieBreakScore(p1=0, p2=0, p1_serving=True),
+        ))
+        print(time() - t)
+        print("-----")
     print(out)
