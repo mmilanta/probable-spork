@@ -1,2 +1,2 @@
-from proby.core import Probe, GameDirectedGraph
-__all__ = ["Probe", "GameDirectedGraph"]
+from proby.core import Probe, GameDirectedGraph, GameEnd
+__all__ = ["Probe", "GameDirectedGraph", "GameEnd"]

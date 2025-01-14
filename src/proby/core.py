@@ -4,6 +4,7 @@ from enum import Enum
 from typing import NamedTuple, Literal, Any, Callable
 from dataclasses import dataclass
 from itertools import chain
+import random
 
 AnyTuple = tuple[Any, ...]
 
@@ -117,22 +118,24 @@ class ProbeSet:
 
 class GameDirectedGraph:
     def __init__(
-        self, dg: dict[AnyTuple, dict[FrozenProbeSet, AnyTuple | GameEnd]]
+        self, dg: dict[AnyTuple, dict[FrozenProbeSet, AnyTuple | GameEnd]], root: AnyTuple
     ) -> None:
         self.dg = dg
+        self.root = root
+        
 
     @classmethod
     def from_play_func(
         self,
         play_func: Callable[..., AnyTuple | GameEnd],
-        starting_score: AnyTuple,
+        root: AnyTuple,
     ) -> "GameDirectedGraph":
         sym_vars = [
             SymbolicVariable(id=s)
             for s in list(signature(play_func).parameters)[1:]
         ]
         dg: dict[AnyTuple, dict[FrozenProbeSet, AnyTuple | GameEnd]] = {}
-        to_compute: set[AnyTuple] = {starting_score}
+        to_compute: set[AnyTuple] = {root}
 
         def _dfs(score: AnyTuple, probes: ProbeSet) -> None:
             try:
@@ -157,7 +160,7 @@ class GameDirectedGraph:
                 ]
             )
             _dfs(score=to_compute.pop(), probes=probes)
-        return self(dg=dg)
+        return self(dg=dg, root=root)
 
     @classmethod
     def _parse_kwargs_probes(cls, kwargs: dict[str, float]) -> dict[SymbolicVariable, float]:
@@ -174,7 +177,7 @@ class GameDirectedGraph:
         return values
 
     def compute_expected_value(
-        self, root: AnyTuple, **kwargs: dict[str, float]
+        self, **kwargs: dict[str, float]
     ) -> float:
 
         values = GameDirectedGraph._parse_kwargs_probes(kwargs)
@@ -218,13 +221,13 @@ class GameDirectedGraph:
                 means[root] = out_means
             return out_means
 
-        mean_pol = get_means(calling_stack=[], root=root)
+        mean_pol = get_means(calling_stack=[], root=self.root)
         assert len(mean_pol.mons) == 1 and mean_pol.mons[0].score is None
 
         return mean_pol.mons[0].coeff
 
     def compute_probability(
-        self, root: AnyTuple, **kwargs: dict[str, float]
+        self, **kwargs: dict[str, float]
     ) -> float:
 
         values = GameDirectedGraph._parse_kwargs_probes(kwargs)
@@ -270,10 +273,30 @@ class GameDirectedGraph:
                 probs[root] = out_probs
             return out_probs
 
-        prob_pol = get_probs(calling_stack=[], root=root)
+        prob_pol = get_probs(calling_stack=[], root=self.root)
         assert len(prob_pol.mons) == 1 and prob_pol.mons[0].score is None
 
         return prob_pol.mons[0].coeff
+
+    def compute_importance(self, **kwargs: dict[str, float]) -> dict[str, float]:
+
+        values = GameDirectedGraph._parse_kwargs_probes(kwargs)
+        importance: dict[AnyTuple, float] = {}
+    def simulate(self, **kwargs: dict[str, float]):
+        values = GameDirectedGraph._parse_kwargs_probes(kwargs)
+        history = [self.root]
+        state = self.root
+        while not isinstance(state, GameEnd):
+            rand = random.random()
+            for edge in self.dg[state]:
+                rand -= edge.compute_probability(values)
+                if rand <= 0:
+                    state = self.dg[state][edge]
+                    break
+            else:
+                raise ValueError("No edge found. The sum of the probabilities should be 1.")
+            history.append(state)
+        return history
 
 
 @dataclass(frozen=True, eq=True)
@@ -344,7 +367,7 @@ if __name__ == "__main__":
     t = time()
     graph = GameDirectedGraph.from_play_func(
         play_tie_break,
-        starting_score=TieBreakScore(p1=0, p2=0, p1_serving=True),
+        root=TieBreakScore(p1=0, p2=0, p1_serving=True),
     )
     print(time() - t)
     print("XXX")
@@ -359,12 +382,13 @@ if __name__ == "__main__":
     # print(print_dg(dg))
     s = time()
     out = []
+    simulation = graph.simulate(p=0.5, q=0.5)
+
     for p in range(0, 100):
         t = time()
         out.append(graph.compute_expected_value(
             p=p / 100,
             q=p / 100,
-            root=TieBreakScore(p1=0, p2=0, p1_serving=True),
         ))
         print(time() - t)
         print("-----")

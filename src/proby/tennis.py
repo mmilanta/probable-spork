@@ -28,7 +28,7 @@ def play_game(score: GameScore, p: Probe, q: Probe) -> GameScore | GameEnd:
     return score
 
 
-N = 3
+N_POINTS_TIE_BREAK = 7
 
 
 class TieBreakScore(NamedTuple):
@@ -56,9 +56,9 @@ def play_tie_break(
         score = TieBreakScore(
             p1=score.p1, p2=score.p2, p1_serving=not score.p1_serving
         )
-    if score.p1 == score.p2 == N - 1:
-        score = TieBreakScore(p1=N - 2, p2=N - 2, p1_serving=score.p1_serving)
-    if max(score.p1, score.p2) == N:
+    if score.p1 == score.p2 == N_POINTS_TIE_BREAK - 1:
+        score = TieBreakScore(p1=N_POINTS_TIE_BREAK - 2, p2=N_POINTS_TIE_BREAK - 2, p1_serving=score.p1_serving)
+    if max(score.p1, score.p2) == N_POINTS_TIE_BREAK:
         return GameEnd.WIN if score.p1 > score.p2 else GameEnd.LOSE
     return score
 
