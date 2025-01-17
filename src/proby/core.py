@@ -116,13 +116,49 @@ class ProbeSet:
         return " - ".join(parts)
 
 
+@dataclass(frozen=True, eq=True)
+class Mon:
+    score: AnyTuple | None
+    coeff: float
+
+
+@dataclass(frozen=True, eq=True)
+class Pol:
+    mons: tuple[Mon, ...]
+
+    def __add__(self, other: "Pol") -> "Pol":
+        monome_kdx: dict[AnyTuple | None, float] = {}
+        for monome in chain(self.mons, other.mons):
+            if monome.score not in monome_kdx:
+                monome_kdx[monome.score] = 0
+            monome_kdx[monome.score] += monome.coeff
+        return Pol(
+            mons=tuple(Mon(score=k, coeff=v) for k, v in monome_kdx.items())
+        )
+
+    def __radd__(self, other: "Pol" | Literal[0]) -> "Pol":
+        if other == 0:
+            return self
+        else:
+            return other + self
+
+    def __mul__(self, other: float) -> "Pol":
+        return Pol(
+            mons=tuple(
+                Mon(score=mon.score, coeff=mon.coeff * other)
+                for mon in self.mons
+            )
+        )
+
+
 class GameDirectedGraph:
     def __init__(
-        self, dg: dict[AnyTuple, dict[FrozenProbeSet, AnyTuple | GameEnd]], root: AnyTuple
+        self,
+        dg: dict[AnyTuple, dict[FrozenProbeSet, AnyTuple | GameEnd]],
+        root: AnyTuple,
     ) -> None:
         self.dg = dg
         self.root = root
-        
 
     @classmethod
     def from_play_func(
@@ -163,23 +199,26 @@ class GameDirectedGraph:
         return self(dg=dg, root=root)
 
     @classmethod
-    def _parse_kwargs_probes(cls, kwargs: dict[str, float]) -> dict[SymbolicVariable, float]:
+    def _parse_kwargs_probes(
+        cls, kwargs: dict[str, float]
+    ) -> dict[SymbolicVariable, float]:
         values: dict[SymbolicVariable, float] = {}
         for k, val in kwargs.items():
             assert isinstance(k, str)
             try:
                 val = float(val)
             except (TypeError, ValueError):
-                raise ValueError(f"Probe {k} value must be a float, or something that can be casted to float. Found {type(val)}")
+                raise ValueError(
+                    f"Probe {k} value must be a float, or something that can be casted to float. Found {type(val)}"
+                )
             if val > 1 or val < 0:
-                raise ValueError(f"Probe {k} value must be between 0 and 1, found {val}.")
+                raise ValueError(
+                    f"Probe {k} value must be between 0 and 1, found {val}."
+                )
             values[SymbolicVariable(id=k)] = val
         return values
 
-    def compute_expected_value(
-        self, **kwargs: dict[str, float]
-    ) -> float:
-
+    def compute_expected_value(self, **kwargs: float) -> float:
         values = GameDirectedGraph._parse_kwargs_probes(kwargs)
         means: dict[AnyTuple, Pol] = {}
 
@@ -201,7 +240,10 @@ class GameDirectedGraph:
                     )
                 else:
                     next_means = Pol(mons=tuple([]))
-                out_means += (next_means + Pol(mons=(Mon(score=None, coeff=edge.size()), ))) * edge_probs
+                out_means += (
+                    next_means
+                    + Pol(mons=(Mon(score=None, coeff=edge.size()),))
+                ) * edge_probs
             calling_stack.pop()
 
             for mon in out_means.mons:
@@ -226,10 +268,33 @@ class GameDirectedGraph:
 
         return mean_pol.mons[0].coeff
 
-    def compute_probability(
-        self, **kwargs: dict[str, float]
-    ) -> float:
+    def compute_probability(self, **kwargs: float) -> float:
+        return self._compute_probability(**kwargs)[self.root].mons[0].coeff
 
+    def compute_importance(self, **kwargs: float) -> dict[AnyTuple, float]:
+        probs = self._compute_probability(**kwargs)
+        importance: dict[AnyTuple, float] = {}
+        for state in self.dg:
+            if state not in probs:
+                raise ValueError(f"state {state} not in probs")
+            max_prob = 0.0
+            min_prob = 1.0
+            for edge in self.dg[state]:
+                next_state = self.dg[state][edge]
+                if next_state not in probs:
+                    raise ValueError(f"state {next_state} not in probs")
+                if next_state == GameEnd.LOSE:
+                    prob = 0.0
+                elif next_state == GameEnd.WIN:
+                    prob = 1.0
+                elif isinstance(next_state, tuple):
+                    prob = probs[next_state].mons[0].coeff
+                max_prob = max(max_prob, prob)
+                min_prob = min(min_prob, prob)
+            importance[state] = max_prob - min_prob
+        return importance
+
+    def _compute_probability(self, **kwargs: float) -> dict[AnyTuple, Pol]:
         values = GameDirectedGraph._parse_kwargs_probes(kwargs)
         probs: dict[AnyTuple, Pol] = {}
 
@@ -273,19 +338,20 @@ class GameDirectedGraph:
                 probs[root] = out_probs
             return out_probs
 
-        prob_pol = get_probs(calling_stack=[], root=self.root)
-        assert len(prob_pol.mons) == 1 and prob_pol.mons[0].score is None
+        _ = get_probs(calling_stack=[], root=self.root)
+        for state in probs:
+            # Assert that all probs are resolved (float)
+            assert (
+                len(probs[state].mons) == 1
+                and probs[state].mons[0].score is None
+            )
 
-        return prob_pol.mons[0].coeff
+        return probs
 
-    def compute_importance(self, **kwargs: dict[str, float]) -> dict[str, float]:
-
+    def simulate(self, **kwargs: float) -> list[AnyTuple | GameEnd]:
         values = GameDirectedGraph._parse_kwargs_probes(kwargs)
-        importance: dict[AnyTuple, float] = {}
-    def simulate(self, **kwargs: dict[str, float]):
-        values = GameDirectedGraph._parse_kwargs_probes(kwargs)
-        history = [self.root]
-        state = self.root
+        history: list[AnyTuple | GameEnd] = [self.root]
+        state: AnyTuple | GameEnd = self.root
         while not isinstance(state, GameEnd):
             rand = random.random()
             for edge in self.dg[state]:
@@ -294,46 +360,15 @@ class GameDirectedGraph:
                     state = self.dg[state][edge]
                     break
             else:
-                raise ValueError("No edge found. The sum of the probabilities should be 1.")
+                raise ValueError(
+                    "No edge found. The sum of the probabilities should be 1."
+                )
             history.append(state)
         return history
 
 
-@dataclass(frozen=True, eq=True)
-class Mon:
-    score: AnyTuple | None
-    coeff: float
-
-
-@dataclass(frozen=True, eq=True)
-class Pol:
-    mons: tuple[Mon, ...]
-
-    def __add__(self, other: "Pol") -> "Pol":
-        monome_kdx: dict[AnyTuple | None, float] = {}
-        for monome in chain(self.mons, other.mons):
-            if monome.score not in monome_kdx:
-                monome_kdx[monome.score] = 0
-            monome_kdx[monome.score] += monome.coeff
-        return Pol(
-            mons=tuple(Mon(score=k, coeff=v) for k, v in monome_kdx.items())
-        )
-
-    def __radd__(self, other: "Pol" | Literal[0]) -> "Pol":
-        if other == 0:
-            return self
-        else:
-            return other + self
-
-    def __mul__(self, other: float) -> "Pol":
-        return Pol(
-            mons=tuple(
-                Mon(score=mon.score, coeff=mon.coeff * other)
-                for mon in self.mons
-            )
-        )
-
 if __name__ == "__main__":
+
     class TieBreakScore(NamedTuple):
         p1: int
         p2: int
@@ -364,6 +399,7 @@ if __name__ == "__main__":
         if max(score.p1, score.p2) == N:
             return GameEnd.WIN if score.p1 > score.p2 else GameEnd.LOSE
         return score
+
     t = time()
     graph = GameDirectedGraph.from_play_func(
         play_tie_break,
@@ -371,6 +407,7 @@ if __name__ == "__main__":
     )
     print(time() - t)
     print("XXX")
+
     def print_dg(graph: GameDirectedGraph) -> str:
         out = ""
         for state in graph.dg:
@@ -386,10 +423,12 @@ if __name__ == "__main__":
 
     for p in range(0, 100):
         t = time()
-        out.append(graph.compute_expected_value(
-            p=p / 100,
-            q=p / 100,
-        ))
+        out.append(
+            graph.compute_expected_value(
+                p=p / 100,
+                q=p / 100,
+            )
+        )
         print(time() - t)
         print("-----")
     print(out)
