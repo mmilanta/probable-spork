@@ -269,10 +269,22 @@ class GameDirectedGraph:
         return mean_pol.mons[0].coeff
 
     def compute_probability(self, **kwargs: float) -> float:
-        return self._compute_probability(**kwargs)[self.root].mons[0].coeff
+        return (
+            self._compute_probability(self.root, **kwargs)[self.root]
+            .mons[0]
+            .coeff
+        )
 
     def compute_importance(self, **kwargs: float) -> dict[AnyTuple, float]:
-        probs = self._compute_probability(**kwargs)
+        probs = self._compute_probability(self.root, **kwargs)
+        while set(probs.keys()) != set(self.dg.keys()):
+            for state in self.dg:
+                if state not in probs:
+                    new_probs = self._compute_probability(state, **kwargs)
+                    break
+            for new_state in new_probs:
+                probs[new_state] = new_probs[new_state]
+
         importance: dict[AnyTuple, float] = {}
         for state in self.dg:
             if state not in probs:
@@ -281,8 +293,6 @@ class GameDirectedGraph:
             min_prob = 1.0
             for edge in self.dg[state]:
                 next_state = self.dg[state][edge]
-                if next_state not in probs:
-                    raise ValueError(f"state {next_state} not in probs")
                 if next_state == GameEnd.LOSE:
                     prob = 0.0
                 elif next_state == GameEnd.WIN:
@@ -294,7 +304,9 @@ class GameDirectedGraph:
             importance[state] = max_prob - min_prob
         return importance
 
-    def _compute_probability(self, **kwargs: float) -> dict[AnyTuple, Pol]:
+    def _compute_probability(
+        self, root: AnyTuple, **kwargs: float
+    ) -> dict[AnyTuple, Pol]:
         values = GameDirectedGraph._parse_kwargs_probes(kwargs)
         probs: dict[AnyTuple, Pol] = {}
 
@@ -338,7 +350,7 @@ class GameDirectedGraph:
                 probs[root] = out_probs
             return out_probs
 
-        _ = get_probs(calling_stack=[], root=self.root)
+        _ = get_probs(calling_stack=[], root=root)
         for state in probs:
             # Assert that all probs are resolved (float)
             assert (
@@ -368,6 +380,27 @@ class GameDirectedGraph:
 
 
 if __name__ == "__main__":
+
+    class DeltaScore(NamedTuple):
+        delta: int
+        n_points: int
+
+    def play_delta_match(score: DeltaScore, p: Probe) -> DeltaScore | GameEnd:
+        if p.run():
+            score = DeltaScore(score.delta + 1, score.n_points)
+        else:
+            score = DeltaScore(score.delta - 1, score.n_points)
+        if score.delta == score.n_points:
+            return GameEnd.WIN
+        elif score.delta == -score.n_points:
+            return GameEnd.LOSE
+        return score
+
+    delta_match_init = DeltaScore(delta=0, n_points=11)
+    delta_match_graph = GameDirectedGraph.from_play_func(
+        root=delta_match_init, play_func=play_delta_match
+    )
+    dmi = delta_match_graph.compute_importance(p=0.501)
 
     class TieBreakScore(NamedTuple):
         p1: int
