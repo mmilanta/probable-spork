@@ -31,12 +31,6 @@ class FutureEndedException(Exception):
         self.sym_var: SymbolicVariable = sym_var
 
 
-class GameOver(Exception):
-    def __init__(self, p1_wins: bool):
-        super().__init__(f"Player {'1' if p1_wins else '2'} won")
-        self.p1_wins: bool = p1_wins
-
-
 @dataclass(frozen=True, eq=True)
 class FrozenProbe:
     sym_var: SymbolicVariable
@@ -81,6 +75,9 @@ class FrozenProbeSet:
 
     def size(self) -> int:
         return sum(len(probe.future) for probe in self.probes)
+
+    def dump(self) -> dict[str, list[bool]]:
+        return {probe.sym_var.id: list(probe.future) for probe in self.probes}
 
 
 class ProbeSet:
@@ -378,6 +375,27 @@ class GameDirectedGraph:
             history.append(state)
         return history
 
+    def dump(self) -> dict[str, Any]:
+        dg: dict[str, dict[str, str]] = {}
+        edges: dict[str, dict[str, list[bool]]] = {}
+        for state in self.dg:
+            dg[str(hash(state))] = {}
+            for edge in self.dg[state]:
+                edges[str(hash(state))] = edge.dump()
+                if isinstance(self.dg[state][edge], tuple):
+                    dg[str(hash(state))][str(hash(edge))] = str(
+                        hash(self.dg[state][edge])
+                    )
+                else:
+                    dg[str(hash(state))][str(hash(edge))] = str(
+                        self.dg[state][edge]
+                    )
+        return {
+            "root": str(hash(self.root)),
+            "dg": dg,
+            "edges": edges,
+        }
+
 
 if __name__ == "__main__":
 
@@ -407,7 +425,7 @@ if __name__ == "__main__":
         p2: int
         p1_serving: bool
 
-    N = 100
+    N = 10
 
     def play_tie_break(
         score: TieBreakScore, p: Probe, q: Probe
