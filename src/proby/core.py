@@ -76,8 +76,11 @@ class FrozenProbeSet:
     def size(self) -> int:
         return sum(len(probe.future) for probe in self.probes)
 
-    def dump(self) -> dict[str, list[bool]]:
-        return {probe.sym_var.id: list(probe.future) for probe in self.probes}
+    def dump(self) -> list[dict[str, Any]]:
+        return [
+            {"id": probe.sym_var.id, "future": probe.future}
+            for probe in self.probes
+        ]
 
 
 class ProbeSet:
@@ -376,24 +379,29 @@ class GameDirectedGraph:
         return history
 
     def dump(self) -> dict[str, Any]:
-        dg: dict[str, dict[str, str]] = {}
-        edges: dict[str, dict[str, list[bool]]] = {}
+        dg: dict[int, list[tuple[int, str | int]]] = {}
+        edges: list[FrozenProbeSet] = []
+        states: list[AnyTuple] = list(self.dg.keys())
         for state in self.dg:
-            dg[str(hash(state))] = {}
+            state_index = states.index(state)
+            dg[state_index] = []
             for edge in self.dg[state]:
-                edges[str(hash(state))] = edge.dump()
-                if isinstance(self.dg[state][edge], tuple):
-                    dg[str(hash(state))][str(hash(edge))] = str(
-                        hash(self.dg[state][edge])
-                    )
-                else:
-                    dg[str(hash(state))][str(hash(edge))] = str(
-                        self.dg[state][edge]
-                    )
+                if edge not in edges:
+                    edges.append(edge)
+                edge_index: int = edges.index(edge)
+                new_state = self.dg[state][edge]
+                if isinstance(new_state, tuple):
+                    new_state_index = states.index(new_state)
+                    dg[state_index].append((edge_index, new_state_index))
+                elif new_state == GameEnd.WIN:
+                    dg[state_index].append((edge_index, "WIN"))
+                elif new_state == GameEnd.LOSE:
+                    dg[state_index].append((edge_index, "LOSE"))
         return {
+            "states": states,
+            "graph": dg,
             "root": str(hash(self.root)),
-            "dg": dg,
-            "edges": edges,
+            "edges": [edge.dump() for edge in edges],
         }
 
 
