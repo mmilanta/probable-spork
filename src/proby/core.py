@@ -398,9 +398,9 @@ class GameDirectedGraph:
                 elif new_state == GameEnd.LOSE:
                     dg[state_index].append((edge_index, "LOSE"))
         return {
-            "states": states,
+            "states": [str(state) for state in states],
             "graph": dg,
-            "root": str(hash(self.root)),
+            "root": states.index(self.root),
             "edges": [edge.dump() for edge in edges],
         }
 
