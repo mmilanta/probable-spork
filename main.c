@@ -61,6 +61,7 @@ int Pow2(unsigned int x){
 
 
 unsigned int* nav(unsigned int *graph, int id) {
+    // Navigate to the node with the given ID
     int k = graph[0];
     if (id >= graph[1]) {
         perror("Error: Node ID out of bounds");
@@ -76,6 +77,7 @@ int n_nodes(unsigned int *graph) {
     return graph[1];
 }
 void _prob(unsigned int graph[], char visiting[], double **prob_cache, double * edge_probabilites, unsigned int id) {
+    // Recursively calculate the probability of winning from each node
     if (visiting[id] == 1){
         prob_cache[id][0] = 0;
         prob_cache[id][id] = 1;
@@ -108,8 +110,8 @@ void _prob(unsigned int graph[], char visiting[], double **prob_cache, double * 
     return;
 }
 
-
 double prob(unsigned int *graph, double *ps) {
+    // Calculate the probability of winning.
     double *edge_probabilites = malloc(n_edges(graph) * sizeof(double));
     for (int i = 0; i < n_edges(graph); i++) {
         edge_probabilites[i] = 1;
@@ -141,6 +143,10 @@ double prob(unsigned int *graph, double *ps) {
     }
     _prob(graph, visiting, prob_cache, edge_probabilites, 2);
     double out = prob_cache[2][0];
+    for (int i = 0; i < n_nodes(graph); i++) {
+        free(prob_cache[i]);
+    }
+    free(visiting);
     free(edge_probabilites);
     free(prob_cache);
     return out;

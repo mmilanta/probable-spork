@@ -62,19 +62,11 @@ class Score(NamedTuple):
     tot: int = 7
 
 
-def play_match(score: Score, p: bool, q: bool, k: bool) -> Score | GameEnd:
-    play = p if score.serving else q
-    new_serving = (
-        not score.serving if score.p1 + score.p2 & 1 else score.serving
-    )
-    if play:
-        score = Score(
-            p1=score.p1 + 1, p2=score.p2, tot=score.tot, serving=new_serving
-        )
+def play_match(score: Score, p: bool) -> Score | GameEnd:
+    if p:
+        score = Score(p1=score.p1 + 1, p2=score.p2, tot=score.tot)
     else:
-        score = Score(
-            p1=score.p1, p2=score.p2 + 1, tot=score.tot, serving=new_serving
-        )
+        score = Score(p1=score.p1, p2=score.p2 + 1, tot=score.tot)
     if score.p1 == score.tot:
         return GameEnd.WIN
     elif score.p2 == score.tot:
@@ -82,7 +74,22 @@ def play_match(score: Score, p: bool, q: bool, k: bool) -> Score | GameEnd:
     return score
 
 
-match_init = Score(p1=0, p2=0, tot=100)
+class Delta(NamedTuple):
+    delta: int
+    tot: int = 7
+
+
+def play_match_delta(s: Delta, p: bool) -> Delta | GameEnd:
+    s = (
+        Delta(delta=s.delta + 1, tot=s.tot)
+        if p
+        else Delta(delta=s.delta - 1, tot=s.tot)
+    )
+    if s.delta == s.tot:
+        return GameEnd.WIN
+    elif s.delta == -s.tot:
+        return GameEnd.LOSE
+    return s
 
 
 def generate_future(n_params: int) -> Iterator[tuple[bool, ...]]:
@@ -115,11 +122,17 @@ def compute_graph(
     return states, GameGraph(nodes=nodes)
 
 
-states, graph = compute_graph(play_match, match_init)
+match_init = Score(p1=0, p2=0, tot=50)
+states, graph = compute_graph(
+    play_match_delta,
+    Delta(delta=0, tot=11),
+)
 serialized_graph = graph.serialize(
     byte_len=4,
 )
 with open("serialized_graph.bin", "wb") as f:
     f.write(serialized_graph)
 print(serialized_graph)
+for i, state in enumerate(states):
+    print(f"{i}: {state}")
 int.from_bytes(serialized_graph[:4], byteorder="big", signed=False)
