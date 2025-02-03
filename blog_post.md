@@ -41,6 +41,7 @@ $$
 This is all rather trivial. if $p$ is $\text{True}$, we increase by $1$ the first entry of the vector, otherwise the second. Furhtermore, if the first player reaches $7$, we output $\w$, if the  or $\l$. The python implementation of this would look like:
 
 ```python
+from proby import GameEnd
 s0 = (0, 0) # we use tuples cause state needs to be hashable
 def f_tiebreak_7(s: tuple, p: bool) -> tuple:
   # updating the state
@@ -50,20 +51,38 @@ def f_tiebreak_7(s: tuple, p: bool) -> tuple:
     s = [s[0], s[1] + 1]
   # returning True or False if match is over, and the next state otherwise
   if s[0] == 6:
-    return True
+    return GameEnd.WIN
   elif  s[1] == 6:
-    return False
+    return GameEnd.LOSE
   else:
     return s
 ```
 
+The library also generalized for the case where more than 1 boolean value is passed to the game function. This is useful to model matches where not all points are equal, (eg. tennis, depending on who is serving). For semplicity we won't cover this setting here.
+
 ### Game graph computation
 
+Give a matche $\M$, is then simple to create a directed graph which maps each state to the possible next state. Each node correspond to a state. From each node there will be $2$ outgoing edges, going respectivly to the next state if $\pl_1$ or $\pl_2$ wins.
 
+We can now make a few observations:
+
+* This is a graph, not a tree. As the state $[1,1]$ can be reched both from $[0,1]$ and $[1,0]$.
+* We cannot guarantee that the graph is acyclic. It will be in the case of $\M_{\tiebreak_7}$ defined above, but in the case of advantages, it is possible to come back to a state which has already been visited.
+
+The algorithm to compute the graph can be called as follows.
+
+```python
+from proby import GameGraph
+graph = GameGraph.compute_graph(f_tiebreak_7, root=(0, 0))
+```
 
 ### Compute the probability of winning
 
+
+
 ### Compute the expected length of the match
+
+
 
 ## Discoveries using the tools
 
