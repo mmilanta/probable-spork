@@ -1,3 +1,4 @@
+#include <Python.h>
 #include "libmypy.h"
 
 char probabilityfunc_docs[] = "Compute Probability of winning the match.";

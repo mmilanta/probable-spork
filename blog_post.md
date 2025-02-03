@@ -35,7 +35,7 @@ f_{\tiebreak_7}(s, p) &=
 [s[0], s[1] + 1] & \text{if not } p \text{ and } s[1] < 6, \\
 \end{cases}
 \\
-\M_{\tiebreak_7} &= [f_{\tiebreak_7}, s0]
+\M_{\tiebreak_7} &= [f_{\tiebreak_7}, s_0]
 \end{align}
 $$
 This is all rather trivial. if $p$ is $\text{True}$, we increase by $1$ the first entry of the vector, otherwise the second. Furhtermore, if the first player reaches $7$, we output $\w$, if the  or $\l$. The python implementation of this would look like:
@@ -49,9 +49,9 @@ def f_tiebreak_7(s: tuple, p: bool) -> tuple:
   else:
     s = [s[0], s[1] + 1]
   # returning True or False if match is over, and the next state otherwise
-  if s[0] == 7:
+  if s[0] == 6:
     return True
-  elif  s[1] == 7:
+  elif  s[1] == 6:
     return False
   else:
     return s

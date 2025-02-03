@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "algo.h"
 
 unsigned int WIN = 0;
 unsigned int LOSE = 1;
@@ -252,24 +253,3 @@ double explen(unsigned int *graph, double *ps, int index) {
     free(explen_cache);
     return out;
 }
-// int main(){
-//     unsigned int graph[] = {2, 8, 3, 7, 3, 7, 1, 1, 4, 4, 5, 5, 6, 6, 1, 2, 1, 2, 2, 0, 2, 0, 4, 4, 0, 0};
-//     double ps[] = {0.5, 0.5};
-//     printf("%f\n", prob(graph, ps, 2));
-//     return 0;
-// }
-// void range(int ** start, int len){
-//     *start = malloc(sizeof(int) * len);
-//     for (int j = 0; j < len; j ++){
-//         (*start)[j] = j;
-//     }
-//     return;
-// }
-// int main(){
-//     int* ps = NULL;
-//     int N = 10;
-//     range(&ps, N);
-//     for (int j = 0; j < N; j ++){
-//         printf("%d", ps[j]);
-//     }
-// }
