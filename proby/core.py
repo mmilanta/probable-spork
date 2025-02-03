@@ -108,13 +108,11 @@ class GameGraph:
                         f"Probe {k} value must be between 0 and 1, found {v}."
                     )
             vals[param_index] = val
-        assert all(
-            val is not None for val in vals
-        ), "All probes must be defined."
 
-        # Tell mypy that vals now only contains lists of floats
         vals_filtered = [v for v in vals if v is not None]
+        assert len(vals_filtered) == len(vals), "All probes must be defined."
         # mypy now understands that `val` is `list[float]` in this block
+
         size = len(vals_filtered[0])
         for val in vals_filtered:
             if len(val) != size:
