@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "proby"
-version = "0.0.6"
+version = "0.0.7"
 authors = [
   { name="Marco Milanta", email="marco.milanta@gmail.com" },
 ]
@@ -20,6 +20,11 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/mmilanta/probable-spork"
 Issues = "https://github.com/mmilanta/probable-spork/issues"
+
+
+[tool.setuptools.packages.find]
+where = ["proby"]
+
 
 [tool.ruff]
 # Set the maximum line length to 79.

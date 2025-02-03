@@ -12,6 +12,6 @@ setup_args = dict(
             include_dirs=["proby/probycapi"],
             py_limited_api=True,
         )
-    ]
+    ],
 )
 setup(**setup_args)
