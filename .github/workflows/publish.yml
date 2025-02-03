@@ -32,6 +32,8 @@ jobs:
   publish-wheels:
     needs: build-wheels
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Allow the action to write to the repository
     steps:
       - uses: actions/download-artifact@v4
         with:
