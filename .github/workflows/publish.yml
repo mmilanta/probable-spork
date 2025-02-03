@@ -26,7 +26,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions-${{ github.job }}
+          name: python-package-distributions-${{ matrix.python-version }}
           path: dist
 
   publish-wheels:
@@ -35,7 +35,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions-${{ github.job }}
           path: dist
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
