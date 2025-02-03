@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=75.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "proby"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
   { name="Marco Milanta", email="marco.milanta@gmail.com" },
 ]

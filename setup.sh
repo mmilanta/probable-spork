@@ -1,5 +1,5 @@
 rm -r ./venv
 python -m venv venv                 
 . venv/bin/activate                                                                      
-pip install -r requirements.in
-pip freeze > requirements.txt
+pip install build
+pip install -e .
