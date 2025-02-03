@@ -1,51 +1,41 @@
-name: Upload Python Package to PyPI when a Release is Created
+name: Build & Publish to PyPI using cibuildwheel
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - "*"
 
 jobs:
-  build:
-    name: Build distribution 📦
+  build-wheels:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]  # for example
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install cibuildwheel
+        run: pip install cibuildwheel
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.x"
-    - name: Install pypa/build
-      run: >-
-        python3 -m
-        pip install
-        build
-        --user
-    - name: Build a binary wheel and a source tarball
-      run: python3 -m build --wheel
-    - name: Store the distribution packages
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-package-distributions
-        path: dist/
-    
-  publish-to-pypi:
-    name: >-
-      Publish Python 🐍 distribution 📦 to PyPI
-    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
-    needs:
-    - build
+      - name: Build wheels
+        run: |
+          cibuildwheel --output-dir dist
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: dist
+
+  publish-wheels:
+    needs: build-wheels
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/proby
-    permissions:
-      id-token: write  # IMPORTANT: mandatory for trusted publishing
     steps:
-    - name: Download all the dists
-      uses: actions/download-artifact@v4
-      with:
-        name: python-package-distributions
-        path: dist/
-    - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels
+          path: dist
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
