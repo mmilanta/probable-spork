@@ -66,8 +66,8 @@ Give a matche $\M$, is then simple to create a directed graph which maps each st
 
 We can now make a few observations:
 
-* This is a graph, not a tree. As the state $[1,1]$ can be reched both from $[0,1]$ and $[1,0]$.
-* We cannot guarantee that the graph is acyclic. It will be in the case of $\M_{\tiebreak_7}$ defined above, but in the case of advantages, it is possible to come back to a state which has already been visited.
+* This is a graph, not a tree. For instance the state $[1,1]$ can be reched both from $[0,1]$ and $[1,0]$.
+* We cannot guarantee that the graph is acyclic. It will be in the case of $\M_{\tiebreak_7}$ defined above, but, for instance, in the case of a match with advantages, it is possible to go back to a state which has already been visited.
 
 The algorithm to compute the graph can be called as follows.
 
