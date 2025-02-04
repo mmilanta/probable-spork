@@ -8,15 +8,12 @@ on:
 jobs:
   build-wheels:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.11, 3.12, 3.13]  # for example
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.13
       - name: Install cibuildwheel
         run: pip install cibuildwheel
 
@@ -26,7 +23,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions-${{ matrix.python-version }}
+          name: wheels
           path: dist
 
   publish-wheels:
@@ -37,6 +34,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          path: dist
+          path: dist/
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
