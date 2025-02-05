@@ -106,7 +106,7 @@ Module.onRuntimeInitialized = function() {
           max: 15,
           title: {
             display: true,
-            text: 'X',
+            text: 'Fairness',
           },
         },
         y: {
@@ -115,7 +115,7 @@ Module.onRuntimeInitialized = function() {
           max: 225,
           title: {
             display: true,
-            text: 'Y',
+            text: 'Expected length',
           },
         },
       },
