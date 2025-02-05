@@ -19,11 +19,11 @@
   <h1>Probability of winning a match, given the Probability of winning a point</h1>
   
   <!-- Python Code Input Textarea -->
-  <textarea id="code" style="width: 100%; height: 150px;">
+  <textarea id="code" style="width: 100%; height: 200px;">
 s0 = (0,0)
 N = 100
-def play_fn(state, p: bool):
-    if p:
+def play_fn(state, next_point: bool):
+    if next_point:
         state = (state[0] + 1, state[1])
     else:
         state = (state[0], state[1] + 1)
