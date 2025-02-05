@@ -140,7 +140,8 @@ Module.onRuntimeInitialized = function() {
     const dvs = [0.5, 0.5 + DELTA].map(p => probability(graphData, [p], 2));
     const fairness = (dvs[1] - dvs[0]) / DELTA;
     const el = expected_length(graphData, [0.5], 2);
-    document.getElementById('output').textContent = `Fairness (Derivative P(p) with p = 0.5): ${fairness.toFixed(2)}\nExpected length (E[length of the match] with p = 0.5): ${el.toFixed(2)}`;
+    document.getElementById('output').textContent = `Fairness (Derivative P(p) with p = 0.5): ${fairness.toFixed(2)}
+    Expected length (E[length of the match] with p = 0.5): ${el.toFixed(2)}`;
 
     const dataset = {
         label: 'P(p)',
