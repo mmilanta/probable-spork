@@ -62,7 +62,7 @@ The library also generalized for the case where more than 1 boolean value is pas
 
 ### Game graph computation
 
-Give a matche $\M$, is then simple to create a directed graph which maps each state to the possible next state. Each node correspond to a state. From each node there will be $2$ outgoing edges, going respectivly to the next state if $\pl_1$ or $\pl_2$ wins.
+Give a match $\M$, is then simple to create a directed graph which maps each state to the possible next state. Each node correspond to a state. From each node there will be $2$ outgoing edges, going respectivly to the next state if $\pl_1$ or $\pl_2$ wins.
 
 We can now make a few observations:
 

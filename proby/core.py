@@ -1,6 +1,6 @@
 import probycapi
 from enum import Enum
-from typing import Any, Iterator, Callable, Literal, NamedTuple
+from typing import Any, Iterator, Callable, Literal
 from dataclasses import dataclass
 from inspect import signature
 import itertools
@@ -70,8 +70,7 @@ class GameGraph:
     ) -> bytes:
         serial_ints = self._serialize_int()
         return b"".join(
-            v.to_bytes(length=byte_len, byteorder=byteorder)
-            for v in serial_ints
+            v.to_bytes(length=byte_len, byteorder=byteorder) for v in serial_ints
         )
 
     def _parse_kwargs_probes(
@@ -79,9 +78,7 @@ class GameGraph:
         kwargs: dict[str, float] | dict[str, list[float]],
         flip: bool = False,
     ) -> list[list[float]]:
-        parameters: list[str] = list(
-            signature(self.playing_function).parameters
-        )[1:]
+        parameters: list[str] = list(signature(self.playing_function).parameters)[1:]
         vals: list[list[float] | None] = [None] * len(
             parameters
         )  # -1 because the first parameter is the score
@@ -125,9 +122,7 @@ class GameGraph:
         values = self._parse_kwargs_probes(kwargs, flip=True)
         for value in values:
             assert len(value) == 1
-        out = probycapi.probability(
-            self.serialize(), [v[0] for v in values], index
-        )
+        out = probycapi.probability(self.serialize(), [v[0] for v in values], index)
         assert isinstance(out, float)
         return out
 
@@ -161,9 +156,7 @@ class GameGraph:
         edge_probs = self.edge_probabilities([v[0] for v in values])
         current = 2
         while current > 1:
-            next_edge = random.choices(
-                self.nodes[current].edges, edge_probs, k=1
-            )[0]
+            next_edge = random.choices(self.nodes[current].edges, edge_probs, k=1)[0]
             current = next_edge.target_state
         return current == 0
 
@@ -172,13 +165,12 @@ class GameGraph:
         for value in values:
             assert len(value) == 1
 
-        out = probycapi.expected_length(
-            self.serialize(), [v[0] for v in values], index
-        )
+        out = probycapi.expected_length(self.serialize(), [v[0] for v in values], index)
         assert isinstance(out, float)
         return out
 
     def batch_expected_length(self, **kwargs: list[float]) -> list[float]:
+        """Return the expected length of the game for each probe."""
         values = self._parse_kwargs_probes(kwargs)
         parameter_genarator = map(list, zip(*values))
         self_serialized = itertools.repeat(self.serialize())
@@ -193,6 +185,10 @@ class GameGraph:
         return list(response)
 
     def importance(self, **kwargs: float) -> dict[Any, float]:
+        """Return the importance of each state in the game.
+
+        params
+        """
         values = self._parse_kwargs_probes(kwargs)
         for value in values:
             assert len(value) == 1
@@ -225,6 +221,16 @@ class GameGraph:
         playing_function: Callable[..., Any | GameEnd],
         root: Any,
     ) -> "GameGraph":
+        """Compute the game graph for a given playing function and root state.
+
+        params:
+        playing_function: the function that plays the game.
+        root: the initial state of the game.
+
+        Returns:
+        GameGraph: the game graph.
+
+        """
         n_params: int = len(signature(playing_function).parameters) - 1
         states: dict[Any, int] = {GameEnd.WIN: 0, GameEnd.LOSE: 1}
         nodes: list[Node] = [Node(state=0, edges=()), Node(state=1, edges=())]
@@ -253,38 +259,3 @@ class GameGraph:
             playing_function=playing_function,
             root=root,
         )
-
-
-if __name__ == "__main__":
-
-    class Score(NamedTuple):
-        p1: int
-        p2: int
-        serving: bool = True
-        tot: int = 7
-
-    def play_match(score: Score, p: bool) -> Score | GameEnd:
-        if p:
-            score = Score(p1=score.p1 + 1, p2=score.p2, tot=score.tot)
-        else:
-            score = Score(p1=score.p1, p2=score.p2 + 1, tot=score.tot)
-        if score.p1 == score.tot:
-            return GameEnd.WIN
-        elif score.p2 == score.tot:
-            return GameEnd.LOSE
-        return score
-
-    graph = GameGraph.compute_graph(
-        play_match,
-        Score(p1=0, p2=0, tot=11),
-    )
-    graph.probability(p=0.5)
-    serialized_graph = graph.serialize(
-        byte_len=4,
-    )
-    with open("serialized_graph.bin", "wb") as f:
-        f.write(serialized_graph)
-    print(serialized_graph)
-    for i, state in enumerate(graph.states):
-        print(f"{i}: {state}")
-    int.from_bytes(serialized_graph[:4], byteorder="big", signed=False)
