@@ -50,10 +50,11 @@ This library supports also the computation of the expected number of points of a
 
 ## Compile to wasm
 ```
-ecc proby/probycapi/algo.c \
+emcc proby/probycapi/algo.c \
     -o algo.js \
     -O3 \
     -s WASM=1 \
     -s EXPORTED_FUNCTIONS='["_prob", "_explen", "_malloc", "_free"]' \
-    -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+    -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' \
+    -s ALLOW_MEMORY_GROWTH=1 
 ```
