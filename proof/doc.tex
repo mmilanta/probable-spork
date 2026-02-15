@@ -1,0 +1,279 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+
+% ---------- Reusable commands ----------
+\newcommand{\Bp}{B^{(p)}}
+\newcommand{\Xp}{X^{(p)}}
+\newcommand{\bp}{b^{(p)}}
+\newcommand{\taup}{\tau^{(p)}}
+\newcommand{\Pp}{\mathbb{P}_p}
+\newcommand{\Ep}{\mathbb{E}_p}
+\newcommand{\hh}{h}
+\newcommand{\Dlt}{\Delta}
+\newcommand{\win}{W}
+\newcommand{\lose}{L}
+\newcommand{\x}{X}
+\newcommand{\ex}{\mathbb{E}}
+\newcommand{\pr}{\mathbb{P}}
+\newcommand{\fair}{\mathcal{F}}
+% ---------------------------------------
+
+\begin{document}
+
+\section*{Probelm Formalization}
+To state the result rigoursly, we need to formally define all the objects. We begin by the game graph.
+
+\begin{definition}[Game graph]
+Let $G = (V, E)$ be a directed graph with two absorbing vertices \(\win\) and \(\lose\). Every other vertex \(v\) has two outgoing edges $v\to v_+$ and $v\to v_-$. Furthermore, we denote a single vertex $v\in V\setminus \{\win,\lose\}$ as starting node.
+\end{definition}
+
+The game graph is the matemathical structure we will use to describe a tennis match. The vertexes are all the possible states of the match: each will correspond to a specific (punteggio in inglese). From a state $v$, if the first player wins, the game will transition to $v_+$, else to $v_-$. The game being won by the first player corresponds to ending in $\win$, lost in $\lose$.
+
+Now we define the match itself as a random walk on the graph.
+
+\begin{definition}[Graph walk]
+Given a game graph $G = (V, E)$ and $p \in [0,1]$. We define $\x_0, \dots, \x_\tau, $
+to be a stocastic process starting from $\x_0 = s \in V$, and with
+$$
+\x_i = \begin{cases}
+\left(\x_i\right)_+ & \text{with prob. } p, \\
+\left(\x_i\right)_- & \text{with prob } 1 - p,
+\end{cases}
+$$
+while $\x_i\notin \{\win, \lose\}$, after that the random process ends. We call $\tau \in \mathbb N \cup\{\infty\}$ the number of steps needed to reach $\{\win, \lose\}$.
+We will use $\pr_p(.)$ and $\ex_p[.]$ to indicate the probability and the expected value with respect to $p$.
+\end{definition}
+The graph walk is the stocastic process corresponding to playing a match in the structure defined bu $G$. To continue with the paralles, $\tau$ is the number of points played during the match, and $\x_\tau$ is the outcome of the match.
+
+Of course, in our analysis we are interested in those games which are balanced, meaning that assumping the first player is just as strong as the second one $\left(p=1/2\right)$, then the probability of the first player to win the match is also $1/2$, formally this means that:
+$$
+\pr_\frac12 \left(\x_\tau = \win\right)= \frac12.
+$$
+The last thing remained to defined is the fairness of the match. This is a quantity that indicates how much the stronger player actually benefits from the game structure. 
+
+\begin{definition}[Game Fairness]
+Given a game graph $G = (V, E)$, we call the fairness of the match
+$$
+\fair(G) := \frac{d}{dp}\pr_p\left(\x_\tau = \win\right)\Big\vert_{p=\frac12}.
+$$
+\end{definition}
+While this definition could look esoteric there is a nice way to think about it. Assume the first player has an edge of $\varepsilon$, meaning that $p = 1/2 + \varepsilon$, then we will have that
+$$
+\pr_{1/2 + \varepsilon}\left(\x_\tau = \win\right) = \frac12 + \varepsilon\fair(G) + o(\varepsilon).
+$$
+Thus, $\fair(G)$ can be seen as the advantage moltiplicator factor for small $\varepsilon$.
+
+\section*{Main Result}
+\begin{theorem}
+Given a game graph $G$, such that 
+$$
+\ex_\frac12[\tau]<\infty \quad\text{and}\quad \pr_\frac12 \left(\x_\tau = \win\right)= \frac12,
+$$
+then
+$$
+\fair(G)\leq \left(\ex_\frac12[\tau]\right)^2.
+$$
+\end{theorem}
+
+
+
+For \(p \in (0,1)\), let
+\[
+\Bp = (\bp_0, \bp_1, \dots),
+\qquad
+\bp_i \sim \mathrm{Bernoulli}(p),
+\]
+independent.
+
+Define the random walk \(\Xp = (\Xp_0, \Xp_1, \dots)\) by
+\[
+\Xp_0 = s,
+\]
+\[
+\Xp_{i+1} =
+\begin{cases}
+(\Xp_i)^+, & \text{if } \bp_i = 1, \\
+(\Xp_i)^-, & \text{if } \bp_i = 0.
+\end{cases}
+\]
+
+Let
+\[
+\taup = \inf\{ i \ge 0 : \Xp_i \in \{W,L\} \}.
+\]
+
+\begin{theorem}[Fairness--Length Inequality]
+Let
+\[
+\Pp(\win)
+=
+\Pp(\Xp_{\taup} = W),
+\qquad
+\mathcal{F}
+=
+\left.
+\frac{d}{dp}
+\Pp(\win)
+\right|_{p=1/2}.
+\]
+Then
+\[
+\mathcal{F}^2
+\le
+\mathbb{E}_{1/2}[\tau^{(1/2)}].
+\]
+\end{theorem}
+
+\begin{proof}
+
+\textbf{Harmonic function.}
+
+Define
+\[
+\hh(v)
+=
+\mathbb{P}_{1/2}(\Xp_{\tau^{(1/2)}} = W \mid \Xp_0 = v).
+\]
+
+Then \(\hh(W)=1\), \(\hh(L)=0\), and for non-absorbing \(v\),
+\[
+\hh(v)
+=
+\frac{\hh(v^+) + \hh(v^-)}{2}.
+\]
+
+Under \(p=\tfrac12\),
+\(
+\hh(\Xp_0), \dots, \hh(\Xp_{\tau^{(1/2)}})
+\)
+is a martingale.
+
+\bigskip
+
+\textbf{Perturbation around \(1/2\).}
+
+By telescoping,
+\[
+\hh(\Xp_{\taup})
+=
+\hh(\Xp_0)
++
+\sum_{i=1}^{\taup}
+\big(
+\hh(\Xp_i)-\hh(\Xp_{i-1})
+\big).
+\]
+
+Taking expectation under \(\Pp\),
+\[
+\Pp(\win)
+=
+\frac12
++
+(p-\tfrac12)
+\Ep
+\left[
+\sum_{i=1}^{\taup}
+\Dlt(\Xp_{i-1})
+\right],
+\]
+where
+\[
+\Dlt(v) := \hh(v^+) - \hh(v^-).
+\]
+
+Thus
+\[
+\mathcal{F}
+=
+\mathbb{E}_{1/2}
+\left[
+\sum_{i=1}^{\tau^{(1/2)}}
+\Dlt(\Xp_{i-1})
+\right].
+\]
+
+\bigskip
+
+\textbf{Energy identity.}
+
+Under \(p=\tfrac12\),
+\[
+\hh(\Xp_i)-\hh(\Xp_{i-1})
+=
+\frac12
+\Dlt(\Xp_{i-1})
+(2\bp_{i-1}-1).
+\]
+
+Since the variables are independent and
+\(
+\mathbb{E}_{1/2}[(2\bp_{i-1}-1)^2]=1,
+\)
+
+\[
+\operatorname{Var}_{1/2}
+\big(
+\hh(\Xp_{\tau^{(1/2)}})
+\big)
+=
+\frac14
+\mathbb{E}_{1/2}
+\left[
+\sum_{i=1}^{\tau^{(1/2)}}
+\Dlt^2(\Xp_{i-1})
+\right].
+\]
+
+But this variance equals \(1/4\). Hence
+
+\[
+\mathbb{E}_{1/2}
+\left[
+\sum_{i=1}^{\tau^{(1/2)}}
+\Dlt^2(\Xp_{i-1})
+\right]
+=
+1.
+\]
+
+\bigskip
+
+\textbf{Cauchy--Schwarz.}
+
+\[
+\mathcal{F}
+=
+\mathbb{E}_{1/2}
+\left[
+\sum_{i=1}^{\tau^{(1/2)}}
+\Dlt(\Xp_{i-1})
+\right].
+\]
+
+By Cauchy--Schwarz,
+\[
+\mathcal{F}^2
+\le
+\mathbb{E}_{1/2}[\tau^{(1/2)}]
+\,
+\mathbb{E}_{1/2}
+\left[
+\sum_{i=1}^{\tau^{(1/2)}}
+\Dlt^2(\Xp_{i-1})
+\right].
+\]
+
+Using the energy identity,
+\[
+\mathcal{F}^2
+\le
+\mathbb{E}_{1/2}[\tau^{(1/2)}].
+\]
+
+\end{proof}
+
+\end{document}
