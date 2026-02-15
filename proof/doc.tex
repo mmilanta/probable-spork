@@ -1,6 +1,6 @@
 \documentclass{article}
 \usepackage{amsmath, amssymb, amsthm}
-
+\usepackage[margin=1in]{geometry}
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
 \newtheorem{lemma}{Lemma}
@@ -35,7 +35,7 @@
 \newcommand{\ex}{\mathbb{E}}
 \newcommand{\pr}{\mathbb{P}}
 \newcommand{\fair}{\mathcal{F}}
-\newcommand{\h}{h}
+\newcommand{\h}{h}\usepackage[margin=1in]{geometry}
 % ---------------------------------------
 
 \begin{document}
@@ -166,7 +166,10 @@ $$
 $$
 The reason is that $\xgp_\taugp$ is either $\win$ or $\lose$, thus $\mgp_\taugp$ is the either $1$ or $0$, thus $ \ex\left[\mgp_\taugp\right]$ is the probability that $\mgp_\taugp$ is $1$.
 
-Furthermore, because the match is balanced (one of the conditions we assumed), $\mgp_{0} = \h\left(\xgp_0\right) = 1/2$. Thus, $\mgp$ is a stochastic process which starts at $1/2$ and ends at $1$ or $0$, but even more interestingly, the expected value of $\mgp$ starts from $1/2$ and ends at the probability of winning the match.
+Furthermore, because the match is balanced (one of the conditions we assumed),
+$$
+\mgp_{0} = \h\left(\xgp_0\right) = 1/2.$$
+Thus, $\mgp$ is a stocastic process which starts at $1/2$ and ends at $1$ or $0$, but even more interestingly, the expected value of $\mgp$ starts from $1/2$ and ends at the probability of winning the match.
 
 \subsection*{Perturbation argument}
 
@@ -174,9 +177,9 @@ As we discussed before, $\m^{(G, s, 1/2)}$ is a martingale, thus
 $$
 \ex\left[\mgp_i\right] = 1/2 \quad \forall i.
 $$
-We now examine what happens if we perturb the match structure slightly from $1/2$. So we compute the probability of winning with $p = 1/2 + \varepsilon$.
+We now examin what happens if we perturb the $p$ slightly from $1/2$. So we compute the probability of winning with $p = 1/2 + \varepsilon$.
 \begin{align*}
-    \pr&\left(\out^{(G, s, 1/2 + \varepsilon)} = \win\right) = \ex\left[\mge_\tauge\right]\\
+    \pr\left(\out^{(G, s, 1/2 + \varepsilon)} = \win\right) &= \ex\left[\mge_\tauge\right]\\
     &= \ex\left[\underbrace{\mge_0}_{=1/2} + \sum_{i=0}^{\tauge} \left(\mge_i - \mge_{i-1}\right)\right] \\
     &= \frac12 + \ex\left[\sum_{i=0}^{\infty} 1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
     &\overset{(1)}{=} \frac12 +\sum_{i=0}^{\infty} \ex\left[1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
@@ -196,7 +199,7 @@ In $(2)$ we use a trick: we momentarily define $\mge_i = \mge_{\tauge}$ for $i >
 
 Finally we can compute the derivative of the probability of winning as the limit of the perturbation argument.
 \begin{align*}
-    \frac{d}{dp} \pr\left(\out^{(G, s, p)} = \win\right)&  \Big\vert_{p=1/2} = \lim_{\varepsilon \to 0} \frac{\pr\left(\out^{(G, s, 1/2 + \varepsilon)} = \win\right) - \pr\left(\out^{(G, s, 1/2)} = \win\right)}{\varepsilon} \\
+    \frac{d}{dp} \pr\left(\out^{(G, s, p)} = \win\right)  \Big\vert_{p=1/2} &= \lim_{\varepsilon \to 0} \frac{\pr\left(\out^{(G, s, 1/2 + \varepsilon)} = \win\right) - \pr\left(\out^{(G, s, 1/2)} = \win\right)}{\varepsilon} \\
     &= \lim_{\varepsilon \to 0} \frac{\frac12 + \varepsilon \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] - \frac12}{\varepsilon} \\
     &= \lim_{\varepsilon \to 0} \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] \\
     &= \ex\left[\sum_{i=0}^{\tau^{G, s, 1/2}} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right]. \\
@@ -216,15 +219,38 @@ Because the match is balanced, we know that the probability of winning the match
 \end{equation}
 Now we can use the telescoping argument to express the variance of $\mghalf$ over the course of the match. Let $b_i$ be a random variable that is $1$ if at step $i$ the process goes on the $+$ edge, and $-1$ if it goes on the $-$ edge. Note that $b_i\overset{\text{i.i.d.}}{\sim} \text{Rademacher}(1/2)$ (i.e., $\pr(b_i = 1) = \pr(b_i = -1) = 1/2$), and the independence follows from the second assumption we made. Then:
 \begin{align*}
-    \var & \left(\mghalf_\taughalf\right) = \var\left(\mghalf_0 + \sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
+    \var \left(\mghalf_\taughalf\right) &= \var\left(\mghalf_0 + \sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
     &\overset{(1)}{=}\var\left(\sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
-    &\overset{(2)}{=}\var\left(\sum_{i=1}^{\taughalf}\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)\\
+\end{align*}
+Where $(1)$ is due to the fact that $\mghalf_0 = 1/2$, and translations do not contribute to the variance. Now we focus on $\mghalf_i - \mghalf_{i-1}$.
+
+\begin{align*}
+    \mghalf_i - \mghalf_{i-1} &= \h\left(\xghalf_i\right) - \h\left(\xghalf_{i - 1}\right) \\
+    &= \begin{cases}
+    \h\left(\left(\xghalf_{i - 1}\right)_+\right) - \h\left(\xghalf_{i - 1}\right) \text{ if win}\\
+    \h\left(\left(\xghalf_{i - 1}\right)_-\right) - \h\left(\xghalf_{i - 1}\right) \text{ if lose}\\
+    \end{cases}\\
+    &= \begin{cases}
+    \h\left(\left(\xghalf_{i - 1}\right)_+\right) - \frac12\left(\h\left(\left(\xghalf_{i - 1}\right)_+\right) + \h\left(\left(\xghalf_{i - 1}\right)_-\right)\right) \text{ if win}\\
+    \h\left(\left(\xghalf_{i - 1}\right)_-\right) - \frac12\left(\h\left(\left(\xghalf_{i - 1}\right)_+\right) + \h\left(\left(\xghalf_{i - 1}\right)_-\right)\right)  \text{ if lose}\\
+    \end{cases}\\
+    &= \begin{cases}
+    \frac12 \Delta_G\left(\xghalf_{i - 1}\right) \text{ if win}\\
+    \frac12 -\Delta_G\left(\xghalf_{i - 1}\right)  \text{ if lose}\\
+    \end{cases}\\
+    &= \frac12 \Delta_G\left(\xghalf_{i - 1}\right)b_i,
+\end{align*}
+Where $b_i = 1$ if the first player manages to claim the $i$-th point, otherwise $-1$. Because the match is balanced, $b_i \sim \text{Rademacher}(1/2)$. Furgthermore, notice that $b_i \perp b_j\;\forall i \neq j$ due to the the second assumption of the theorem.
+
+\begin{align*}
+    \var \left(\mghalf_\taughalf\right) &= \var\left(\mghalf_0 + \sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
+    &=\var\left(\sum_{i=1}^{\taughalf}\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)\\
     &=\frac14 \sum_{i=1}^{\taughalf} \sum_{j=1}^{\taughalf}\cov\left(\Delta_G\left(\xghalf_{i-1}\right)  b_{i-1}, \Delta_G\left(\xghalf_{j-1}\right)  b_{j-1} \right)\\
-    &\overset{(3)}{=}\frac14 \sum_{i=1}^{\taughalf} \var\left(\Delta_G\left(\xghalf_{i-1}\right) b_{i-1}\right)\\
-    &\overset{(4)}{=}\frac14 \sum_{i=1}^{\taughalf} \ex\left[\Delta_G\left(\xghalf_{i-1}\right)^2\right]\\
+    &\overset{(1)}{=}\frac14 \sum_{i=1}^{\taughalf} \var\left(\Delta_G\left(\xghalf_{i-1}\right) b_{i-1}\right)\\
+    &\overset{(2)}{=}\frac14 \sum_{i=1}^{\taughalf} \ex\left[\Delta_G\left(\xghalf_{i-1}\right)^2\right]\\
 \end{align*}
 
-Where $(1)$ is due to the fact that $\mghalf_0 = 1/2$, and translations do not contribute to the variance. In $(2)$ we use the observation that $\mghalf_i - \mghalf_{i-1} = \frac12 \Delta_G\left(\xghalf_{i-1}\right) b_{i-1}$. In $(3)$ we use the aforementioned independence to cancel out all the cross-terms. In $(4)$ we use the fact $\ex[b_i] = 0$, thus the variance is the expected value of the square.
+In $(1)$ we use the aformentioned indipendence to cancel out all the cross-terms. In $(2)$ we use the fact $\ex[b_i] = 0$, thus the variance is the expected value of the square.
 
 Combining this with \eqref{eq:variance_target} we get
 \begin{equation}\label{eq:energy_identity}
@@ -237,8 +263,8 @@ The last step to complete the proof is to use the Cauchy--Schwarz inequality:
 \begin{align*}
     \fair(G, s)^2 &\overset{(1)}{=} \ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
     &= \ex\left[\sum_{i=0}^{\taughalf} 1 \;\Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
-    &\leq \underbrace{\ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)^2\right]}_{= 1 \text{ due to \eqref{eq:energy_identity}}} \ex\left[\sum_{i=0}^{\taughalf} 1\right]\\
+    &\overset{(2)}{\leq}\underbrace{\ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)^2\right]}_{= 1 \text{ due to variance identity}} \ex\left[\sum_{i=0}^{\taughalf} 1\right]\\
     &= \ex\left[\sum_{i=0}^{\taughalf} 1\right] = \ex\left[\taughalf\right].
 \end{align*}
-Where $(1)$ is due to equation \eqref{eq:fairness_formula}. This concludes the proof.
+Where $(1)$ is due to equation $(1)$ in the perturbation argument, and $(2)$ to the Cauchy--Schwarz inequality for sum of random variables. This concludes the proof.
 \end{document}
