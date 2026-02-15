@@ -3,6 +3,7 @@
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
 
 % ---------- Reusable commands ----------
 \newcommand{\Bp}{B^{(p)}}
@@ -15,10 +16,18 @@
 \newcommand{\Dlt}{\Delta}
 \newcommand{\win}{W}
 \newcommand{\lose}{L}
-\newcommand{\x}{X}
+\newcommand{\start}{s}
+\newcommand{\x}{\mathbf{X}}
+\newcommand{\xgp}{\x^{\left(G, s, p\right)}}
+\newcommand{\xghalf}{\x^{\left(G, s, 1/2\right)}}
+\newcommand{\taugp}{{\tau^{\left(G, s, p\right)}}}
+\newcommand{\taughalf}{{\tau^{\left(G, s, 1/2\right)}}}
+\newcommand{\out}{O}
+\newcommand{\outgp}{{O^{\left(G, s, p\right)}}}
 \newcommand{\ex}{\mathbb{E}}
 \newcommand{\pr}{\mathbb{P}}
 \newcommand{\fair}{\mathcal{F}}
+\newcommand{\h}{h}
 % ---------------------------------------
 
 \begin{document}
@@ -27,7 +36,9 @@
 To state the result rigoursly, we need to formally define all the objects. We begin by the game graph.
 
 \begin{definition}[Game graph]
-Let $G = (V, E)$ be a directed graph with two absorbing vertices \(\win\) and \(\lose\). Every other vertex \(v\) has two outgoing edges $v\to v_+$ and $v\to v_-$. Furthermore, we denote a single vertex $v\in V\setminus \{\win,\lose\}$ as starting node.
+Let $G = (V, E)$ be a directed graph with two absorbing vertices \(\win\) and \(\lose\). Every other vertex \(v\) has two outgoing edges $v\to v_+$ and $v\to v_-$.
+
+Furthermore, we denote a single vertex $\start\in V\setminus \{\win,\lose\}$ as starting node.
 \end{definition}
 
 The game graph is the matemathical structure we will use to describe a tennis match. The vertexes are all the possible states of the match: each will correspond to a specific (punteggio in inglese). From a state $v$, if the first player wins, the game will transition to $v_+$, else to $v_-$. The game being won by the first player corresponds to ending in $\win$, lost in $\lose$.
@@ -35,58 +46,85 @@ The game graph is the matemathical structure we will use to describe a tennis ma
 Now we define the match itself as a random walk on the graph.
 
 \begin{definition}[Graph walk]
-Given a game graph $G = (V, E)$ and $p \in [0,1]$. We define $\x_0, \dots, \x_\tau, $
-to be a stocastic process starting from $\x_0 = s \in V$, and with
+Given a game graph $G = (V, E)$, $\start \in V$ and $p \in [0,1]$. We define $\xgp$
+to be a stocastic process on $G$ starting from the starting the node $\xgp_0 = \start$, and with
 $$
-\x_i = \begin{cases}
-\left(\x_i\right)_+ & \text{with prob. } p, \\
-\left(\x_i\right)_- & \text{with prob } 1 - p,
+\xgp_{i+1}= \begin{cases}
+\left(\xgp_i\right)_+ & \text{with prob. } p, \\
+\left(\xgp_i\right)_- & \text{with prob } 1 - p,
 \end{cases}
 $$
-while $\x_i\notin \{\win, \lose\}$, after that the random process ends. We call $\tau \in \mathbb N \cup\{\infty\}$ the number of steps needed to reach $\{\win, \lose\}$.
-We will use $\pr_p(.)$ and $\ex_p[.]$ to indicate the probability and the expected value with respect to $p$.
+while $\xgp_i\notin \{\win, \lose\}$, after that the random process ends. We call $\taugp \in \mathbb N \cup\{\infty\}$ the number of steps needed to reach $\{\win, \lose\}$. Finally, if $\taugp<\infty$ we call the final state $\outgp = \xgp_\taugp \in \{\win, \lose\}$.
 \end{definition}
-The graph walk is the stocastic process corresponding to playing a match in the structure defined bu $G$. To continue with the paralles, $\tau$ is the number of points played during the match, and $\x_\tau$ is the outcome of the match.
+
+
+The graph walk is the stocastic process corresponding to playing a match in the structure defined by $G$, and starting from punteggio 0 a 0, which corresponds to the node $s$. To continue with the paralles, $\taugp$ is the number of points played during the match, and $\xgp_\taugp$ is the outcome of the match.
 
 Of course, in our analysis we are interested in those games which are balanced, meaning that assumping the first player is just as strong as the second one $\left(p=1/2\right)$, then the probability of the first player to win the match is also $1/2$, formally this means that:
 $$
-\pr_\frac12 \left(\x_\tau = \win\right)= \frac12.
+\pr \left( \out_{(G, s, 1/2)} = \win\right)= \frac12.
 $$
 The last thing remained to defined is the fairness of the match. This is a quantity that indicates how much the stronger player actually benefits from the game structure. 
 
 \begin{definition}[Game Fairness]
-Given a game graph $G = (V, E)$, we call the fairness of the match
+Given a game graph $G = (V, E)$, and a starting point $s$, we call the fairness of the match
 $$
-\fair(G) := \frac{d}{dp}\pr_p\left(\x_\tau = \win\right)\Big\vert_{p=\frac12}.
+\fair(G, s) := \frac{d}{dp}\pr \left( \outgp = \win\right)\Big\vert_{p=\frac12}.
 $$
 \end{definition}
 While this definition could look esoteric there is a nice way to think about it. Assume the first player has an edge of $\varepsilon$, meaning that $p = 1/2 + \varepsilon$, then we will have that
 $$
-\pr_{1/2 + \varepsilon}\left(\x_\tau = \win\right) = \frac12 + \varepsilon\fair(G) + o(\varepsilon).
+\pr\left(\out_{(G, s, 1/2 + \varepsilon)} = \win\right) = \frac12 + \varepsilon\fair(G, s) + o(\varepsilon).
 $$
-Thus, $\fair(G)$ can be seen as the advantage moltiplicator factor for small $\varepsilon$.
+Thus, $\fair$ can be seen as the advantage moltiplicator factor for small $\varepsilon$.
 
 \section*{Main Result}
 \begin{theorem}
-Given a game graph $G$, such that 
+Given a game graph $G$ and a starting position $s$, such that the game is balanced
 $$
-\ex_\frac12[\tau]<\infty \quad\text{and}\quad \pr_\frac12 \left(\x_\tau = \win\right)= \frac12,
+\pr \left( \out^{(G, s, 1/2)} = \win\right)= \frac12, 
+$$
+and the match has no hidden status
+$$
+\xgp_i \vert \xgp_{0}, \dots, \xgp_{i-1} = \xgp_i \vert \xgp_{i-1},
 $$
 then
 $$
-\fair(G)\leq \left(\ex_\frac12[\tau]\right)^2.
+\fair(G, s)\leq \left(\ex[\tau_{(G, s, 1/2)}]\right)^2.
 $$
 \end{theorem}
+This is result is tight, as we can see by the optimal game structure defined in the blog post.
+The two assumptions we do are also quite natural. The first one is that we are talking about a balanced match structure, where the first player has no inherit advantage to the second one. The second one is more subdle, and likely it does not hold in practice, basically we are assuming that the players will play each point indipendently of how the previous points in the match went. This assumption is however necessary, without it the result does not hold.
 
+\section*{Proof}
 
+The proof relies on this key construction.
+\begin{definition}[Value function]
+    $$
+    \h_{(G)}: V \to [0,1], \quad\quad \h_{(G)}(v) = \pr\left( \out^{(G, v, 1/2)} = \win\right).
+    $$
+\end{definition}
+Thus, $\h_{(G)}(v)$ is the probability for the first player to win, given that the first player is just as strong as the second one $(p= 1/2)$, and given that the current punteggio situation is $v$.
+Note that $\h_{(G)}(v)$ is not a random variable, and it always assumes that $p = 1/2$.
 
-For \(p \in (0,1)\), let
-\[
-\Bp = (\bp_0, \bp_1, \dots),
-\qquad
-\bp_i \sim \mathrm{Bernoulli}(p),
-\]
-independent.
+This quantity is a good proxy for the state of the match, instead of a messy punteggio, which could be missleading, this indicates well how far (probabilistically) is a player from winning the match.
+
+We now show that $\h_{(G)}(v)$ has a key harmoinc property, that later on will be crucial.
+\begin{lemma}[$\h_{(G)}(v)$ is harmonic] Given and edge $v\in G\setminus\{\win, \lose\}$, let $v_+$ and $v_-$ be the vertexes reached by the outward edges from $v$, then  
+$$
+\h_{(G)}(v) = \frac12\left(\h_{(G)}(v_+) + \h_{(G)}(v_-) \right).
+$$
+
+\end{lemma}
+\begin{proof}
+The proof comes from rolling out one step of the random walk.
+\begin{align*}
+    \h_{(G)}(v) &= \pr\left( \out^{(G, v, 1/2)} = \win\right) \\
+    &\overset{(1)}{=} \pr\left( \out^{(G, v, 1/2)} = \win\vert \x^{(G, v, 1/2)}_1 = v_+\right)\pr\left(  \x^{(G, v, 1/2)}_1 = v_+\right) + \\ &\quad\quad\pr\left( \out^{(G, v, 1/2)} = \win\vert \x^{(G, v, 1/2)}_1 = v_-\right)\pr\left(  \x^{(G, v, 1/2)}_1 = v_-\right) \\
+    &\overset{(2)}{=}\h_{(G)}(v_+)\pr\left(  \x^{(G, v, 1/2)}_1 = v_+\right) +  \h_{(G)}(v_-)\pr\left(\x^{(G, v, 1/2)}_1 = v_-\right) \\
+    & \overset{(3)}{=} \frac12 \h_{(G)}(v_+) + \frac12\h_{(G)}(v_-).
+\end{align*}
+\end{proof}
 
 Define the random walk \(\Xp = (\Xp_0, \Xp_1, \dots)\) by
 \[
