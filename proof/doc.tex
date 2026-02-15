@@ -9,6 +9,8 @@
 \newcommand{\Bp}{B^{(p)}}
 \newcommand{\Xp}{X^{(p)}}
 \newcommand{\bp}{b^{(p)}}
+\newcommand{\var}{\mathbb{V}}
+\newcommand{\cov}{\text{Cov}}
 \newcommand{\taup}{\tau^{(p)}}
 \newcommand{\Pp}{\mathbb{P}_p}
 \newcommand{\Ep}{\mathbb{E}_p}
@@ -19,9 +21,15 @@
 \newcommand{\start}{s}
 \newcommand{\x}{\mathbf{X}}
 \newcommand{\xgp}{\x^{\left(G, s, p\right)}}
+\newcommand{\xge}{\x^{\left(G, s, 1/2 + \varepsilon\right)}}
 \newcommand{\xghalf}{\x^{\left(G, s, 1/2\right)}}
 \newcommand{\taugp}{{\tau^{\left(G, s, p\right)}}}
 \newcommand{\taughalf}{{\tau^{\left(G, s, 1/2\right)}}}
+\newcommand{\tauge}{{\tau^{\left(G, s, 1/2 + \varepsilon\right)}}}
+\newcommand{\mge}{\m^{\left(G, s, 1/2 + \varepsilon\right)}}
+\newcommand{\mgp}{\m^{\left(G, s, p\right)}}
+\newcommand{\mghalf}{\m^{\left(G, s, 1/2\right)}}
+\newcommand{\m}{M}
 \newcommand{\out}{O}
 \newcommand{\outgp}{{O^{\left(G, s, p\right)}}}
 \newcommand{\ex}{\mathbb{E}}
@@ -31,6 +39,14 @@
 % ---------------------------------------
 
 \begin{document}
+\title{Optimal Game Structure Inequality}
+\author{Marco Milanta}
+\date{February 15, 2026}
+\maketitle
+
+\begin{abstract}
+We prove the fairness--length inequality for general game graphs.
+\end{abstract}
 
 \section*{Probelm Formalization}
 To state the result rigoursly, we need to formally define all the objects. We begin by the game graph.
@@ -97,8 +113,8 @@ This is result is tight, as we can see by the optimal game structure defined in 
 The two assumptions we do are also quite natural. The first one is that we are talking about a balanced match structure, where the first player has no inherit advantage to the second one. The second one is more subdle, and likely it does not hold in practice, basically we are assuming that the players will play each point indipendently of how the previous points in the match went. This assumption is however necessary, without it the result does not hold.
 
 \section*{Proof}
-
-The proof relies on this key construction.
+The proof is devided in three parts. First we do a perturbation argument to derive a powerful formula to express the fairness $\fair(G, s)$, then we do an energy bound. Finally, we use the Cauchy--Schwarz inequality to derive the final bound. We first start by defining the key quantities we will use.
+\subsection*{Definitions}
 \begin{definition}[Value function]
     $$
     \h_{(G)}: V \to [0,1], \quad\quad \h_{(G)}(v) = \pr\left( \out^{(G, v, 1/2)} = \win\right).
@@ -122,196 +138,108 @@ The proof comes from rolling out one step of the random walk.
     \h_{(G)}(v) &= \pr\left( \out^{(G, v, 1/2)} = \win\right) \\
     &\overset{(1)}{=} \pr\left( \out^{(G, v, 1/2)} = \win\vert \x^{(G, v, 1/2)}_1 = v_+\right)\pr\left(  \x^{(G, v, 1/2)}_1 = v_+\right) + \\ &\quad\quad\pr\left( \out^{(G, v, 1/2)} = \win\vert \x^{(G, v, 1/2)}_1 = v_-\right)\pr\left(  \x^{(G, v, 1/2)}_1 = v_-\right) \\
     &\overset{(2)}{=}\h_{(G)}(v_+)\pr\left(  \x^{(G, v, 1/2)}_1 = v_+\right) +  \h_{(G)}(v_-)\pr\left(\x^{(G, v, 1/2)}_1 = v_-\right) \\
-    & \overset{(3)}{=} \frac12 \h_{(G)}(v_+) + \frac12\h_{(G)}(v_-).
+    & \overset{(3)}{=} \frac12 \h_{(G)}(v_+) + \frac12\h_{(G)}(v_-),
 \end{align*}
+where $(1)$ is due to the law of total probability, dividing the probability space between the two possible outcomes of the first step. $(2)$ follows from the definition of $\h_{(G)}(v)$. $(3)$ follows from the fact that we are looking at $\x^{(G, v, 1/2)}$, thus there is a $1/2$ probability of winning the first step.
 \end{proof}
 
-Define the random walk \(\Xp = (\Xp_0, \Xp_1, \dots)\) by
-\[
-\Xp_0 = s,
-\]
-\[
-\Xp_{i+1} =
-\begin{cases}
-(\Xp_i)^+, & \text{if } \bp_i = 1, \\
-(\Xp_i)^-, & \text{if } \bp_i = 0.
-\end{cases}
-\]
+Now that we defined the value function $\h_{(G)}(v)$, we introduce one more quantity
+\begin{definition}[Importance function]
+$$
+\Delta_G(v) := \h_{(G)}(v_+) - \h_{(G)}(v_-).
+$$
+\end{definition}
+This function indicates how much probability is at stake in a given situation $v$. If the game is balanced, if the first player wins the next point, then his probability of winning will go up by $\Delta_G(v)/2$. This quantity is a good proxy to indentify pressure points as matchpoints in a game.
+look at the stocastic value of $\h_{(G)}(v)$ over the course of the match.
 
-Let
-\[
-\taup = \inf\{ i \ge 0 : \Xp_i \in \{W,L\} \}.
-\]
+Now that we defined those non-aleatoric quantities, we can conver the problem with a probability distribution. Thus we define the following random process.
+\begin{definition}[Stochastic Value Process]
+We define $\mgp$ as follows:
+$$
+\mgp := \left(\h\left(\xgp_0\right), \h\left(\xgp_1\right), \dots, \h\left(\xgp_\taugp\right)\right).
+$$
+\end{definition}
+The name $\mgp$ is motivated by the fact that, in the specific case of $p=1/2$, $\m^{(G, s, 1/2)}$ is a martingale.
 
-\begin{theorem}[Fairness--Length Inequality]
-Let
-\[
-\Pp(\win)
-=
-\Pp(\Xp_{\taup} = W),
-\qquad
-\mathcal{F}
-=
-\left.
-\frac{d}{dp}
-\Pp(\win)
-\right|_{p=1/2}.
-\]
-Then
-\[
-\mathcal{F}^2
-\le
-\mathbb{E}_{1/2}[\tau^{(1/2)}].
-\]
-\end{theorem}
+To motivate these constructions, we notice that
+$$
+\pr\left( \out^{(G, s, p)} = \win\right) = \ex\left[\mgp_\taugp\right].
+$$
+The reason is that $\xgp_\taugp$ is either $\win$ or $\lose$, thus $\mgp_\taugp$ is the either $1$ or $0$, thus $ \ex\left[\mgp_\taugp\right]$ is the probability that $\mgp_\taugp$ is $1$.
 
-\begin{proof}
+Furthermore, because the match is balanced (one of the conditions we assumed), $\mgp_{0} = \h\left(\xgp_0\right) = 1/2$. Thus, $\mgp$ is a stocastic process which starts at $1/2$ and ends at $1$ or $0$, but even more interestingly, the expected value of $\mgp$ starts from $1/2$ and ends at the probability of winning the match.
 
-\textbf{Harmonic function.}
+\subsection*{Perturbation argument}
 
-Define
-\[
-\hh(v)
-=
-\mathbb{P}_{1/2}(\Xp_{\tau^{(1/2)}} = W \mid \Xp_0 = v).
-\]
+As we discussed before, $\m^{(G, s, 1/2)}$ is a martingale, thus 
+$$
+\ex\left[\mgp_i\right] = 1/2 \quad \forall i.
+$$
+We now examin what happens if we perturb the match structure slightly from $1/2$. So we compute the probability of winning with $p = 1/2 + \varepsilon$.
+\begin{align*}
+    \pr&\left(\out^{(G, s, 1/2 + \varepsilon)} = \win\right) = \ex\left[\mge_\tauge\right]\\
+    &= \ex\left[\underbrace{\mge_0}_{=1/2} + \sum_{i=0}^{\tauge} \left(\mge_i - \mge_{i-1}\right)\right] \\
+    &= \frac12 + \ex\left[\sum_{i=0}^{\infty} 1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
+    &\overset{(1)}{=} \frac12 +\sum_{i=0}^{\infty} \ex\left[1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
+    &\overset{(2)}{=} \frac12 +\sum_{i=0}^{\infty} \ex\left[\mge_i - \mge_{i-1}\right]\\
+    &\overset{(3)}{=} \frac12 +\sum_{i=0}^{\infty} \ex\left[\ex\left[\mge_i - \mge_{i-1}\vert \xge_{i-1}\right]\right]\\
+    &\overset{(4)}{=} \frac12 +\varepsilon \sum_{i=0}^{\infty} \ex\left[\Delta_G\left(\xge_{i-1}\right)\right].\\
+    &\overset{(5)}{=} \frac12 +\varepsilon \; \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right].\\
+\end{align*}
+In $(1)$ we use the fact that the quantity we are trying to bound is a probability, thus is between $0$ and $1$, and thus we can swap the sum and the expectation.
+In $(2)$ we use a trick, we momentanly define $\mge_i = \mge_{\tauge}$ for $i > \tauge$. In $(3)$ we use the law of total expectation. Finally, $(4)$ is justified right after.
+\begin{align*}
+& \ex\left[\left(\h\left(\xge_i\right) - \h\left(\xge_{i-1}\right)\right)\vert \xge_{i-1}\right] = \\
+&= \underbrace{\frac12\left(\h\left(\left(\xge_{i-1}\right)_+\right) + \h\left(\left(\xge_{i-1}\right)_-\right)\right) - \h\left(\xge_{i-1}\right)}_{= 0 \text{ because } \h \text{ is harmonic}} + \\
+& \quad\quad + \varepsilon \underbrace{\left(\h\left(\left(\xge_{i-1}\right)_+\right) - \h\left(\left(\xge_{i-1}\right)_-\right)\right)}_{:= \Delta_G\left(\xge_{i-1}\right)} \\
+&= \varepsilon \Delta_G\left(\xge_{i-1}\right).
+\end{align*}
 
-Then \(\hh(W)=1\), \(\hh(L)=0\), and for non-absorbing \(v\),
-\[
-\hh(v)
-=
-\frac{\hh(v^+) + \hh(v^-)}{2}.
-\]
+Finally we can compute the derivative of the probability of winning as the limit of the perturbation argument.
+\begin{align*}
+    \frac{d}{dp} \pr\left(\out^{(G, s, p)} = \win\right)&  \Big\vert_{p=1/2} = \lim_{\varepsilon \to 0} \frac{\pr\left(\out^{(G, s, 1/2 + \varepsilon)} = \win\right) - \pr\left(\out^{(G, s, 1/2)} = \win\right)}{\varepsilon} \\
+    &= \lim_{\varepsilon \to 0} \frac{\frac12 + \varepsilon \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] - \frac12}{\varepsilon} \\
+    &= \lim_{\varepsilon \to 0} \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] \\
+    &= \ex\left[\sum_{i=0}^{\tau^{G, s, 1/2}} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right]. \\
+\end{align*}
+Thus, finally we have
+\begin{equation}
+    \fair(G, s) = \ex\left[\sum_{i=0}^{\infty} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right].
+\end{equation}
+This concludes the perturbation argument. 
+\subsection*{Variance identity}
 
-Under \(p=\tfrac12\),
-\(
-\hh(\Xp_0), \dots, \hh(\Xp_{\tau^{(1/2)}})
-\)
-is a martingale.
+In the perturbation argument we have focused on the expected value of $\mgp$ over the course of the match. Now we focus on the variance instead. Similar to the perturbation argument, we will use a telescoping argument to express the variance of $\mghalf$ over the course of the match, toghether with a key insight on the variance of the $\mghalf_\taughalf$ function.
 
-\bigskip
+Because the match is balanced, we know that the probability of winning the match is $1/2$, thus $\mghalf_\taughalf \sim \text{Bernoulli}(1/2)$. Thus
+\begin{equation}
+    \var\left(\mghalf_\taughalf\right) = \var\left(\text{Bernoulli}(1/2)\right) =  \frac14.
+\end{equation}
+Now we can use the telescoping argument to express the variance of $\mghalf$ over the course of the match.
+\begin{align*}
+    \var & \left(\mghalf_\taughalf\right) = \var\left(\mghalf_0 + \sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
+    &\overset{(1)}{=}\var\left(\sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
+    &\overset{(2)}{=}\var\left(\sum_{i=1}^{\taughalf}\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)\\
+    &=\frac14 \sum_{i=1}^{\taughalf} \sum_{j=1}^{\taughalf}\cov\left(\Delta_G\left(\xghalf_{i-1}\right)  b_{i-1}, \Delta_G\left(\xghalf_{j-1}\right)  b_{j-1} \right)\\
+    &\overset{(3)}{=}\frac14 \sum_{i=1}^{\taughalf} \var\left(\Delta_G\left(\xghalf_{i-1}\right) b_{i-1}\right)\\
+    &\overset{(4)}{=}\frac14 \sum_{i=1}^{\taughalf} \ex\left[\Delta_G\left(\xghalf_{i-1}\right)^2\right]\\
+\end{align*}
 
-\textbf{Perturbation around \(1/2\).}
+Where $(1)$ is due to the fact that $\mghalf_0 = 1/2$, and translations do not contribute to the variance. In $(2)$ we introduce a random variable that is $1$ if the process goes on the $+$ edge, and $-1$ if it goes on the $-$ edge. Notice that $b_i\overset{\text{i.i.d.}}{\sim} \text{Rademacher}(1/2)$; indipendence follows from the second assumption we made. In $(3)$ we use the aformentioned indipendence to cancel out all the cross-terms. In $(4)$ we use the fact $\ex[b_i] = 0$, thus the variance is the expected value of the square.
 
-By telescoping,
-\[
-\hh(\Xp_{\taup})
-=
-\hh(\Xp_0)
-+
-\sum_{i=1}^{\taup}
-\big(
-\hh(\Xp_i)-\hh(\Xp_{i-1})
-\big).
-\]
+Combining this with equation $(2)$ we get
+\begin{equation}
+    \sum_{i=1}^{\taughalf} \ex\left[\Delta_G\left(\xghalf_{i-1}\right)^2\right] = 1
+\end{equation}
+This concludes the variance identity. 
 
-Taking expectation under \(\Pp\),
-\[
-\Pp(\win)
-=
-\frac12
-+
-(p-\tfrac12)
-\Ep
-\left[
-\sum_{i=1}^{\taup}
-\Dlt(\Xp_{i-1})
-\right],
-\]
-where
-\[
-\Dlt(v) := \hh(v^+) - \hh(v^-).
-\]
-
-Thus
-\[
-\mathcal{F}
-=
-\mathbb{E}_{1/2}
-\left[
-\sum_{i=1}^{\tau^{(1/2)}}
-\Dlt(\Xp_{i-1})
-\right].
-\]
-
-\bigskip
-
-\textbf{Energy identity.}
-
-Under \(p=\tfrac12\),
-\[
-\hh(\Xp_i)-\hh(\Xp_{i-1})
-=
-\frac12
-\Dlt(\Xp_{i-1})
-(2\bp_{i-1}-1).
-\]
-
-Since the variables are independent and
-\(
-\mathbb{E}_{1/2}[(2\bp_{i-1}-1)^2]=1,
-\)
-
-\[
-\operatorname{Var}_{1/2}
-\big(
-\hh(\Xp_{\tau^{(1/2)}})
-\big)
-=
-\frac14
-\mathbb{E}_{1/2}
-\left[
-\sum_{i=1}^{\tau^{(1/2)}}
-\Dlt^2(\Xp_{i-1})
-\right].
-\]
-
-But this variance equals \(1/4\). Hence
-
-\[
-\mathbb{E}_{1/2}
-\left[
-\sum_{i=1}^{\tau^{(1/2)}}
-\Dlt^2(\Xp_{i-1})
-\right]
-=
-1.
-\]
-
-\bigskip
-
-\textbf{Cauchy--Schwarz.}
-
-\[
-\mathcal{F}
-=
-\mathbb{E}_{1/2}
-\left[
-\sum_{i=1}^{\tau^{(1/2)}}
-\Dlt(\Xp_{i-1})
-\right].
-\]
-
-By Cauchy--Schwarz,
-\[
-\mathcal{F}^2
-\le
-\mathbb{E}_{1/2}[\tau^{(1/2)}]
-\,
-\mathbb{E}_{1/2}
-\left[
-\sum_{i=1}^{\tau^{(1/2)}}
-\Dlt^2(\Xp_{i-1})
-\right].
-\]
-
-Using the energy identity,
-\[
-\mathcal{F}^2
-\le
-\mathbb{E}_{1/2}[\tau^{(1/2)}].
-\]
-
-\end{proof}
-
+\subsection*{Cauchy--Schwarz inequality}
+The last step to complete the proof, is to use the Cauchy--Schwarz
+\begin{align*}
+    \fair(G, s)^2 &\overset{(1)}{=} \ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
+    &= \ex\left[\sum_{i=0}^{\taughalf} 1 \;\Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
+    &\leq \underbrace{\ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)^2\right]}_{= 1 \text{ due to variance identity}} \ex\left[\sum_{i=0}^{\taughalf} 1\right]\\
+    &= \ex\left[\sum_{i=0}^{\taughalf} 1\right] = \ex\left[\taughalf\right].
+\end{align*}
+Where $(1)$ is due to equation $(1)$ in the perturbation argument. This concludes the proof.
 \end{document}
