@@ -48,8 +48,8 @@
 We prove the fairness--length inequality for general game graphs.
 \end{abstract}
 
-\section*{Probelm Formalization}
-To state the result rigoursly, we need to formally define all the objects. We begin by the game graph.
+\section*{Problem Formalization}
+To state the result rigorously, we need to formally define all the objects. We begin by the game graph.
 
 \begin{definition}[Game graph]
 Let $G = (V, E)$ be a directed graph with two absorbing vertices \(\win\) and \(\lose\). Every other vertex \(v\) has two outgoing edges $v\to v_+$ and $v\to v_-$.
@@ -57,26 +57,26 @@ Let $G = (V, E)$ be a directed graph with two absorbing vertices \(\win\) and \(
 Furthermore, we denote a single vertex $\start\in V\setminus \{\win,\lose\}$ as starting node.
 \end{definition}
 
-The game graph is the matemathical structure we will use to describe a tennis match. The vertexes are all the possible states of the match: each will correspond to a specific (punteggio in inglese). From a state $v$, if the first player wins, the game will transition to $v_+$, else to $v_-$. The game being won by the first player corresponds to ending in $\win$, lost in $\lose$.
+The game graph is the mathematical structure we will use to describe a tennis match. The vertices are all the possible states of the match: each will correspond to a specific score. From a state $v$, if the first player wins, the game will transition to $v_+$, else to $v_-$. The game being won by the first player corresponds to ending in $\win$, loss in $\lose$.
 
 Now we define the match itself as a random walk on the graph.
 
 \begin{definition}[Graph walk]
 Given a game graph $G = (V, E)$, $\start \in V$ and $p \in [0,1]$. We define $\xgp$
-to be a stocastic process on $G$ starting from the starting the node $\xgp_0 = \start$, and with
+to be a stochastic process on $G$ starting from the starting node $\xgp_0 = \start$, and with
 $$
 \xgp_{i+1}= \begin{cases}
 \left(\xgp_i\right)_+ & \text{with prob. } p, \\
-\left(\xgp_i\right)_- & \text{with prob } 1 - p,
+\left(\xgp_i\right)_- & \text{with prob. } 1 - p,
 \end{cases}
 $$
 while $\xgp_i\notin \{\win, \lose\}$, after that the random process ends. We call $\taugp \in \mathbb N \cup\{\infty\}$ the number of steps needed to reach $\{\win, \lose\}$. Finally, if $\taugp<\infty$ we call the final state $\outgp = \xgp_\taugp \in \{\win, \lose\}$.
 \end{definition}
 
 
-The graph walk is the stocastic process corresponding to playing a match in the structure defined by $G$, and starting from punteggio 0 a 0, which corresponds to the node $s$. To continue with the paralles, $\taugp$ is the number of points played during the match, and $\xgp_\taugp$ is the outcome of the match.
+The graph walk is the stochastic process corresponding to playing a match in the structure defined by $G$, and starting from score 0--0, which corresponds to the node $s$. To continue with the parallels, $\taugp$ is the number of points played during the match, and $\xgp_\taugp$ is the outcome of the match.
 
-Of course, in our analysis we are interested in those games which are balanced, meaning that assumping the first player is just as strong as the second one $\left(p=1/2\right)$, then the probability of the first player to win the match is also $1/2$, formally this means that:
+Of course, in our analysis we are interested in those games which are balanced, meaning that assuming the first player is just as strong as the second one $\left(p=1/2\right)$, then the probability of the first player to win the match is also $1/2$, formally this means that:
 $$
 \pr \left( \out_{(G, s, 1/2)} = \win\right)= \frac12.
 $$
@@ -92,7 +92,7 @@ While this definition could look esoteric there is a nice way to think about it.
 $$
 \pr\left(\out_{(G, s, 1/2 + \varepsilon)} = \win\right) = \frac12 + \varepsilon\fair(G, s) + o(\varepsilon).
 $$
-Thus, $\fair$ can be seen as the advantage moltiplicator factor for small $\varepsilon$.
+Thus, $\fair$ can be seen as the advantage multiplicator factor for small $\varepsilon$.
 
 \section*{Main Result}
 \begin{theorem}
@@ -109,24 +109,24 @@ $$
 \fair(G, s)\leq \left(\ex[\tau_{(G, s, 1/2)}]\right)^2.
 $$
 \end{theorem}
-This is result is tight, as we can see by the optimal game structure defined in the blog post.
-The two assumptions we do are also quite natural. The first one is that we are talking about a balanced match structure, where the first player has no inherit advantage to the second one. The second one is more subdle, and likely it does not hold in practice, basically we are assuming that the players will play each point indipendently of how the previous points in the match went. This assumption is however necessary, without it the result does not hold.
+This result is tight, as we can see by the optimal game structure defined in the blog post.
+The two assumptions we do are also quite natural. The first one is that we are talking about a balanced match structure, where the first player has no inherent advantage over the second one. The second one is more subtle, and likely it does not hold in practice; basically we are assuming that the players will play each point independently of how the previous points in the match went. This assumption is however necessary; without it the result does not hold.
 
 \section*{Proof}
-The proof is devided in three parts. First we do a perturbation argument to derive a powerful formula to express the fairness $\fair(G, s)$, then we do an energy bound. Finally, we use the Cauchy--Schwarz inequality to derive the final bound. We first start by defining the key quantities we will use.
+The proof is divided into three parts. First we do a perturbation argument to derive a powerful formula to express the fairness $\fair(G, s)$, then we do a variance identity, and finally we use the Cauchy--Schwarz inequality to derive the final bound. We first start by defining the key quantities we will use.
 \subsection*{Definitions}
 \begin{definition}[Value function]
     $$
     \h_{(G)}: V \to [0,1], \quad\quad \h_{(G)}(v) = \pr\left( \out^{(G, v, 1/2)} = \win\right).
     $$
 \end{definition}
-Thus, $\h_{(G)}(v)$ is the probability for the first player to win, given that the first player is just as strong as the second one $(p= 1/2)$, and given that the current punteggio situation is $v$.
+Thus, $\h_{(G)}(v)$ is the probability for the first player to win, given that the first player is just as strong as the second one $(p= 1/2)$, and given that the current score is $v$.
 Note that $\h_{(G)}(v)$ is not a random variable, and it always assumes that $p = 1/2$.
 
-This quantity is a good proxy for the state of the match, instead of a messy punteggio, which could be missleading, this indicates well how far (probabilistically) is a player from winning the match.
+This quantity is a good proxy for the state of the match. Instead of a messy score, which could be misleading, this indicates well how far (probabilistically) is a player from winning the match.
 
-We now show that $\h_{(G)}(v)$ has a key harmoinc property, that later on will be crucial.
-\begin{lemma}[$\h_{(G)}(v)$ is harmonic] Given and edge $v\in G\setminus\{\win, \lose\}$, let $v_+$ and $v_-$ be the vertexes reached by the outward edges from $v$, then  
+We now show that $\h_{(G)}(v)$ has a key harmonic property, that later on will be crucial.
+\begin{lemma}[$\h_{(G)}(v)$ is harmonic] Given a vertex $v\in G\setminus\{\win, \lose\}$, let $v_+$ and $v_-$ be the vertices reached by the outward edges from $v$, then  
 $$
 \h_{(G)}(v) = \frac12\left(\h_{(G)}(v_+) + \h_{(G)}(v_-) \right).
 $$
@@ -149,10 +149,9 @@ $$
 \Delta_G(v) := \h_{(G)}(v_+) - \h_{(G)}(v_-).
 $$
 \end{definition}
-This function indicates how much probability is at stake in a given situation $v$. If the game is balanced, if the first player wins the next point, then his probability of winning will go up by $\Delta_G(v)/2$. This quantity is a good proxy to indentify pressure points as matchpoints in a game.
-look at the stocastic value of $\h_{(G)}(v)$ over the course of the match.
+This function indicates how much probability is at stake in a given situation $v$. If the game is balanced, if the first player wins the next point, then his probability of winning will go up by $\Delta_G(v)/2$. This quantity is a good proxy to identify pressure points as match points in a game.
 
-Now that we defined those non-aleatoric quantities, we can conver the problem with a probability distribution. Thus we define the following random process.
+Now that we defined those non-aleatory quantities, we can consider the problem with a probability distribution. Thus we define the following random process.
 \begin{definition}[Stochastic Value Process]
 We define $\mgp$ as follows:
 $$
@@ -167,7 +166,7 @@ $$
 $$
 The reason is that $\xgp_\taugp$ is either $\win$ or $\lose$, thus $\mgp_\taugp$ is the either $1$ or $0$, thus $ \ex\left[\mgp_\taugp\right]$ is the probability that $\mgp_\taugp$ is $1$.
 
-Furthermore, because the match is balanced (one of the conditions we assumed), $\mgp_{0} = \h\left(\xgp_0\right) = 1/2$. Thus, $\mgp$ is a stocastic process which starts at $1/2$ and ends at $1$ or $0$, but even more interestingly, the expected value of $\mgp$ starts from $1/2$ and ends at the probability of winning the match.
+Furthermore, because the match is balanced (one of the conditions we assumed), $\mgp_{0} = \h\left(\xgp_0\right) = 1/2$. Thus, $\mgp$ is a stochastic process which starts at $1/2$ and ends at $1$ or $0$, but even more interestingly, the expected value of $\mgp$ starts from $1/2$ and ends at the probability of winning the match.
 
 \subsection*{Perturbation argument}
 
@@ -175,7 +174,7 @@ As we discussed before, $\m^{(G, s, 1/2)}$ is a martingale, thus
 $$
 \ex\left[\mgp_i\right] = 1/2 \quad \forall i.
 $$
-We now examin what happens if we perturb the match structure slightly from $1/2$. So we compute the probability of winning with $p = 1/2 + \varepsilon$.
+We now examine what happens if we perturb the match structure slightly from $1/2$. So we compute the probability of winning with $p = 1/2 + \varepsilon$.
 \begin{align*}
     \pr&\left(\out^{(G, s, 1/2 + \varepsilon)} = \win\right) = \ex\left[\mge_\tauge\right]\\
     &= \ex\left[\underbrace{\mge_0}_{=1/2} + \sum_{i=0}^{\tauge} \left(\mge_i - \mge_{i-1}\right)\right] \\
@@ -187,7 +186,7 @@ We now examin what happens if we perturb the match structure slightly from $1/2$
     &\overset{(5)}{=} \frac12 +\varepsilon \; \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right].\\
 \end{align*}
 In $(1)$ we use the fact that the quantity we are trying to bound is a probability, thus is between $0$ and $1$, and thus we can swap the sum and the expectation.
-In $(2)$ we use a trick, we momentanly define $\mge_i = \mge_{\tauge}$ for $i > \tauge$. In $(3)$ we use the law of total expectation. Finally, $(4)$ is justified right after.
+In $(2)$ we use a trick: we momentarily define $\mge_i = \mge_{\tauge}$ for $i > \tauge$, notice that this does not alter the expected value because for $i > \tauge$ the quantity $\mge_i - \mge_{i-1}=0$. In $(3)$ we use the law of total expectation. Finally, $(4)$ is justified right after.
 \begin{align*}
 & \ex\left[\left(\h\left(\xge_i\right) - \h\left(\xge_{i-1}\right)\right)\vert \xge_{i-1}\right] = \\
 &= \underbrace{\frac12\left(\h\left(\left(\xge_{i-1}\right)_+\right) + \h\left(\left(\xge_{i-1}\right)_-\right)\right) - \h\left(\xge_{i-1}\right)}_{= 0 \text{ because } \h \text{ is harmonic}} + \\
@@ -203,19 +202,19 @@ Finally we can compute the derivative of the probability of winning as the limit
     &= \ex\left[\sum_{i=0}^{\tau^{G, s, 1/2}} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right]. \\
 \end{align*}
 Thus, finally we have
-\begin{equation}
+\begin{equation}\label{eq:fairness_formula}
     \fair(G, s) = \ex\left[\sum_{i=0}^{\infty} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right].
 \end{equation}
 This concludes the perturbation argument. 
 \subsection*{Variance identity}
 
-In the perturbation argument we have focused on the expected value of $\mgp$ over the course of the match. Now we focus on the variance instead. Similar to the perturbation argument, we will use a telescoping argument to express the variance of $\mghalf$ over the course of the match, toghether with a key insight on the variance of the $\mghalf_\taughalf$ function.
+In the perturbation argument we have focused on the expected value of $\mgp$ over the course of the match. Now we focus on the variance instead. Similar to the perturbation argument, we will use a telescoping argument to express the variance of $\mghalf$ over the course of the match, together with a key insight on the variance of the $\mghalf_\taughalf$ function.
 
 Because the match is balanced, we know that the probability of winning the match is $1/2$, thus $\mghalf_\taughalf \sim \text{Bernoulli}(1/2)$. Thus
-\begin{equation}
+\begin{equation}\label{eq:variance_target}
     \var\left(\mghalf_\taughalf\right) = \var\left(\text{Bernoulli}(1/2)\right) =  \frac14.
 \end{equation}
-Now we can use the telescoping argument to express the variance of $\mghalf$ over the course of the match.
+Now we can use the telescoping argument to express the variance of $\mghalf$ over the course of the match. Let $b_i$ be a random variable that is $1$ if at step $i$ the process goes on the $+$ edge, and $-1$ if it goes on the $-$ edge. Note that $b_i\overset{\text{i.i.d.}}{\sim} \text{Rademacher}(1/2)$ (i.e., $\pr(b_i = 1) = \pr(b_i = -1) = 1/2$), and the independence follows from the second assumption we made. Then:
 \begin{align*}
     \var & \left(\mghalf_\taughalf\right) = \var\left(\mghalf_0 + \sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
     &\overset{(1)}{=}\var\left(\sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
@@ -225,21 +224,21 @@ Now we can use the telescoping argument to express the variance of $\mghalf$ ove
     &\overset{(4)}{=}\frac14 \sum_{i=1}^{\taughalf} \ex\left[\Delta_G\left(\xghalf_{i-1}\right)^2\right]\\
 \end{align*}
 
-Where $(1)$ is due to the fact that $\mghalf_0 = 1/2$, and translations do not contribute to the variance. In $(2)$ we introduce a random variable that is $1$ if the process goes on the $+$ edge, and $-1$ if it goes on the $-$ edge. Notice that $b_i\overset{\text{i.i.d.}}{\sim} \text{Rademacher}(1/2)$; indipendence follows from the second assumption we made. In $(3)$ we use the aformentioned indipendence to cancel out all the cross-terms. In $(4)$ we use the fact $\ex[b_i] = 0$, thus the variance is the expected value of the square.
+Where $(1)$ is due to the fact that $\mghalf_0 = 1/2$, and translations do not contribute to the variance. In $(2)$ we use the observation that $\mghalf_i - \mghalf_{i-1} = \frac12 \Delta_G\left(\xghalf_{i-1}\right) b_{i-1}$. In $(3)$ we use the aforementioned independence to cancel out all the cross-terms. In $(4)$ we use the fact $\ex[b_i] = 0$, thus the variance is the expected value of the square.
 
-Combining this with equation $(2)$ we get
-\begin{equation}
+Combining this with \eqref{eq:variance_target} we get
+\begin{equation}\label{eq:energy_identity}
     \sum_{i=1}^{\taughalf} \ex\left[\Delta_G\left(\xghalf_{i-1}\right)^2\right] = 1
 \end{equation}
 This concludes the variance identity. 
 
 \subsection*{Cauchy--Schwarz inequality}
-The last step to complete the proof, is to use the Cauchy--Schwarz
+The last step to complete the proof is to use the Cauchy--Schwarz inequality:
 \begin{align*}
     \fair(G, s)^2 &\overset{(1)}{=} \ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
     &= \ex\left[\sum_{i=0}^{\taughalf} 1 \;\Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
-    &\leq \underbrace{\ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)^2\right]}_{= 1 \text{ due to variance identity}} \ex\left[\sum_{i=0}^{\taughalf} 1\right]\\
+    &\leq \underbrace{\ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)^2\right]}_{= 1 \text{ due to \eqref{eq:energy_identity}}} \ex\left[\sum_{i=0}^{\taughalf} 1\right]\\
     &= \ex\left[\sum_{i=0}^{\taughalf} 1\right] = \ex\left[\taughalf\right].
 \end{align*}
-Where $(1)$ is due to equation $(1)$ in the perturbation argument. This concludes the proof.
+Where $(1)$ is due to equation \eqref{eq:fairness_formula}. This concludes the proof.
 \end{document}
