@@ -30,8 +30,6 @@
 \newcommand{\mgp}{\m^{\left(G, s, p\right)}}
 \newcommand{\mghalf}{\m^{\left(G, s, 1/2\right)}}
 \newcommand{\m}{M}
-\newcommand{\out}{O}
-\newcommand{\outgp}{{O^{\left(G, s, p\right)}}}
 \newcommand{\ex}{\mathbb{E}}
 \newcommand{\pr}{\mathbb{P}}
 \newcommand{\fair}{\mathcal{F}}
@@ -70,7 +68,7 @@ $$
 \left(\xgp_i\right)_- & \text{with prob. } 1 - p,
 \end{cases}
 $$
-while $\xgp_i\notin \{\win, \lose\}$, after that the random process ends. We call $\taugp \in \mathbb N \cup\{\infty\}$ the number of steps needed to reach $\{\win, \lose\}$. Finally, if $\taugp<\infty$ we call the final state $\outgp = \xgp_\taugp \in \{\win, \lose\}$.
+while $\xgp_i\notin \{\win, \lose\}$, after that the random process ends. We call $\taugp \in \mathbb N \cup\{\infty\}$ the number of steps needed to reach $\{\win, \lose\}$.
 \end{definition}
 
 
@@ -78,19 +76,19 @@ The graph walk is the stochastic process corresponding to playing a match in the
 
 Of course, in our analysis we are interested in those games which are balanced, meaning that assuming the first player is just as strong as the second one $\left(p=1/2\right)$, then the probability of the first player to win the match is also $1/2$, formally this means that:
 $$
-\pr \left( \out_{(G, s, 1/2)} = \win\right)= \frac12.
+\pr \left( \xghalf_\taughalf = \win\right)= \frac12.
 $$
 The last thing remained to defined is the fairness of the match. This is a quantity that indicates how much the stronger player actually benefits from the game structure. 
 
 \begin{definition}[Game Fairness]
 Given a game graph $G = (V, E)$, and a starting point $s$, we call the fairness of the match
 $$
-\fair(G, s) := \frac{d}{dp}\pr \left( \outgp = \win\right)\Big\vert_{p=\frac12}.
+\fair(G, s) := \frac{d}{dp}\pr \left( \xgp_\taugp = \win\right)\Big\vert_{p=\frac12}.
 $$
 \end{definition}
 While this definition could look esoteric there is a nice way to think about it. Assume the first player has an edge of $\varepsilon$, meaning that $p = 1/2 + \varepsilon$, then we will have that
 $$
-\pr\left(\out_{(G, s, 1/2 + \varepsilon)} = \win\right) = \frac12 + \varepsilon\fair(G, s) + o(\varepsilon).
+\pr\left(\xge_\tauge = \win\right) = \frac12 + \varepsilon\fair(G, s) + o(\varepsilon).
 $$
 Thus, $\fair$ can be seen as the advantage multiplicator factor for small $\varepsilon$.
 
@@ -98,7 +96,7 @@ Thus, $\fair$ can be seen as the advantage multiplicator factor for small $\vare
 \begin{theorem}
 Given a game graph $G$ and a starting position $s$, such that the game is balanced
 $$
-\pr \left( \out^{(G, s, 1/2)} = \win\right)= \frac12, 
+\pr \left( \xghalf_\taughalf = \win\right)= \frac12, 
 $$
 and the match has no hidden status
 $$
@@ -117,7 +115,7 @@ The proof is divided into three parts. First we do a perturbation argument to de
 \subsection*{Definitions}
 \begin{definition}[Value function]
     $$
-    \h_{(G)}: V \to [0,1], \quad\quad \h_{(G)}(v) = \pr\left( \out^{(G, v, 1/2)} = \win\right).
+    \h_{(G)}: V \to [0,1], \quad\quad \h_{(G)}(v) = \pr\left( \xghalf_\taughalf = \win\right).
     $$
 \end{definition}
 Thus, $\h_{(G)}(v)$ is the probability for the first player to win, given that the first player is just as strong as the second one $(p= 1/2)$, and given that the current score is $v$.
@@ -135,8 +133,8 @@ $$
 \begin{proof}
 The proof comes from rolling out one step of the random walk.
 \begin{align*}
-    \h_{(G)}(v) &= \pr\left( \out^{(G, v, 1/2)} = \win\right) \\
-    &\overset{(1)}{=} \pr\left( \out^{(G, v, 1/2)} = \win\vert \x^{(G, v, 1/2)}_1 = v_+\right)\pr\left(  \x^{(G, v, 1/2)}_1 = v_+\right) + \\ &\quad\quad\pr\left( \out^{(G, v, 1/2)} = \win\vert \x^{(G, v, 1/2)}_1 = v_-\right)\pr\left(  \x^{(G, v, 1/2)}_1 = v_-\right) \\
+    \h_{(G)}(v) &= \pr\left( \xghalf_\taughalf = \win\right) \\
+    &\overset{(1)}{=} \pr\left( \xghalf_\taughalf = \win\vert \x^{(G, v, 1/2)}_1 = v_+\right)\pr\left(  \x^{(G, v, 1/2)}_1 = v_+\right) + \\ &\quad\quad\pr\left( \xghalf_\taughalf = \win\vert \x^{(G, v, 1/2)}_1 = v_-\right)\pr\left(  \x^{(G, v, 1/2)}_1 = v_-\right) \\
     &\overset{(2)}{=}\h_{(G)}(v_+)\pr\left(  \x^{(G, v, 1/2)}_1 = v_+\right) +  \h_{(G)}(v_-)\pr\left(\x^{(G, v, 1/2)}_1 = v_-\right) \\
     & \overset{(3)}{=} \frac12 \h_{(G)}(v_+) + \frac12\h_{(G)}(v_-),
 \end{align*}
@@ -162,7 +160,7 @@ The name $\mgp$ is motivated by the fact that, in the specific case of $p=1/2$, 
 
 To motivate these constructions, we notice that
 $$
-\pr\left( \out^{(G, s, p)} = \win\right) = \ex\left[\mgp_\taugp\right].
+\pr\left( \xgp_\taugp = \win\right) = \ex\left[\mgp_\taugp\right].
 $$
 The reason is that $\xgp_\taugp$ is either $\win$ or $\lose$, thus $\mgp_\taugp$ is the either $1$ or $0$, thus $ \ex\left[\mgp_\taugp\right]$ is the probability that $\mgp_\taugp$ is $1$.
 
@@ -179,7 +177,7 @@ $$
 $$
 We now examin what happens if we perturb the $p$ slightly from $1/2$. So we compute the probability of winning with $p = 1/2 + \varepsilon$.
 \begin{align*}
-    \pr\left(\out^{(G, s, 1/2 + \varepsilon)} = \win\right) &= \ex\left[\mge_\tauge\right]\\
+    \pr\left(\xge_\tauge = \win\right) &= \ex\left[\mge_\tauge\right]\\
     &= \ex\left[\underbrace{\mge_0}_{=1/2} + \sum_{i=0}^{\tauge} \left(\mge_i - \mge_{i-1}\right)\right] \\
     &= \frac12 + \ex\left[\sum_{i=0}^{\infty} 1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
     &\overset{(1)}{=} \frac12 +\sum_{i=0}^{\infty} \ex\left[1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
@@ -199,7 +197,7 @@ In $(2)$ we use a trick: we momentarily define $\mge_i = \mge_{\tauge}$ for $i >
 
 Finally we can compute the derivative of the probability of winning as the limit of the perturbation argument.
 \begin{align*}
-    \frac{d}{dp} \pr\left(\out^{(G, s, p)} = \win\right)  \Big\vert_{p=1/2} &= \lim_{\varepsilon \to 0} \frac{\pr\left(\out^{(G, s, 1/2 + \varepsilon)} = \win\right) - \pr\left(\out^{(G, s, 1/2)} = \win\right)}{\varepsilon} \\
+    \frac{d}{dp} \pr\left(\xgp_\taugp = \win\right)  \Big\vert_{p=1/2} &= \lim_{\varepsilon \to 0} \frac{\pr\left(\xge_\tauge = \win\right) - \pr\left(\xghalf_\taughalf = \win\right)}{\varepsilon} \\
     &= \lim_{\varepsilon \to 0} \frac{\frac12 + \varepsilon \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] - \frac12}{\varepsilon} \\
     &= \lim_{\varepsilon \to 0} \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] \\
     &= \ex\left[\sum_{i=0}^{\tau^{G, s, 1/2}} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right]. \\
