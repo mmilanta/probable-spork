@@ -244,17 +244,16 @@ Where $b_i = 1$ if the first player manages to claim the $i$-th point, otherwise
 
 \begin{align*}
     \var \left(\mghalf_\taughalf\right) &= \var\left(\mghalf_0 + \sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
-    &=\var\left(\sum_{i=1}^{\taughalf}\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)\\
-    &=\frac14 \sum_{i=1}^{\taughalf} \sum_{j=1}^{\taughalf}\cov\left(\Delta_G\left(\xghalf_{i-1}\right)  b_{i-1}, \Delta_G\left(\xghalf_{j-1}\right)  b_{j-1} \right)\\
-    &\overset{(1)}{=}\frac14 \sum_{i=1}^{\taughalf} \var\left(\Delta_G\left(\xghalf_{i-1}\right) b_{i-1}\right)\\
-    &\overset{(2)}{=}\frac14 \sum_{i=1}^{\taughalf} \ex\left[\Delta_G\left(\xghalf_{i-1}\right)^2\right]\\
+    &\overset{(1)}{=}\var\left(\sum_{i=1}^{\taughalf}\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)\\
+    &=\ex\left[\left(\sum_{i=1}^{\taughalf}\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)^2\right]\\
+    &=\ex\left[\sum_{i=1}^{\taughalf}\left(\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)^2 \right]+ \\ &\quad\quad\quad\quad\quad\quad + \underbrace{\ex\left[\sum_{i\neq i}^{\taughalf}\sum_{j\neq i}^{\taughalf}\frac14 b_{i-1}b_{j-1} \Delta_G\left(\xghalf_{i-1}
+    \right) \Delta_G\left(\xghalf_{j-1}\right)  b_{j-1} \right]}_{= 0 \text{ because } b_{i-1} \perp b_{j-1} \text{ for } i \neq j \text{ and } b_i \perp \Delta_G\left(\xghalf_{j}\right) \text { for } j \leq i}\\
+    &\overset{(2)}{=}\frac14\ex\left[\sum_{i=1}^{\taughalf}\Delta_G\left(\xghalf_{i-1}\right)^2 \right]\\
 \end{align*}
 
-In $(1)$ we use the aformentioned indipendence to cancel out all the cross-terms. In $(2)$ we use the fact $\ex[b_i] = 0$, thus the variance is the expected value of the square.
-
-Combining this with \eqref{eq:variance_target} we get
+In $(1)$ we notice that $\mghalf_0 = 1/2$, thus it does not contribute to the variance. In $(2)$ we notice that $b_i ^2 = 1$. Combining this with \eqref{eq:variance_target} we get
 \begin{equation}\label{eq:energy_identity}
-    \sum_{i=1}^{\taughalf} \ex\left[\Delta_G\left(\xghalf_{i-1}\right)^2\right] = 1
+    \ex\left[\sum_{i=1}^{\taughalf}\Delta_G\left(\xghalf_{i-1}\right)^2 \right] = 1
 \end{equation}
 This concludes the variance identity. 
 
