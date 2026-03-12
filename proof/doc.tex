@@ -179,13 +179,13 @@ $$
 We now examin what happens if we perturb the $p$ slightly from $1/2$. So we compute the probability of winning with $p = 1/2 + \varepsilon$.
 \begin{align*}
     \pr\left(\xge_\tauge = \win\right) &= \ex\left[\mge_\tauge\right]\\
-    &= \ex\left[\underbrace{\mge_0}_{=1/2} + \sum_{i=0}^{\tauge} \left(\mge_i - \mge_{i-1}\right)\right] \\
-    &= \frac12 + \ex\left[\sum_{i=0}^{\infty} 1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
-    &\overset{(1)}{=} \frac12 +\sum_{i=0}^{\infty} \ex\left[1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
-    &\overset{(2)}{=} \frac12 +\sum_{i=0}^{\infty} \ex\left[\mge_i - \mge_{i-1}\right]\\
-    &\overset{(3)}{=} \frac12 +\sum_{i=0}^{\infty} \ex\left[\ex\left[\mge_i - \mge_{i-1}\vert \xge_{i-1}\right]\right]\\
-    &\overset{(4)}{=} \frac12 +\varepsilon \sum_{i=0}^{\infty} \ex\left[\Delta_G\left(\xge_{i-1}\right)\right].\\
-    &\overset{(5)}{=} \frac12 +\varepsilon \; \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right].\\
+    &= \ex\left[\underbrace{\mge_0}_{=1/2} + \sum_{i=1}^{\tauge} \left(\mge_i - \mge_{i-1}\right)\right] \\
+    &= \frac12 + \ex\left[\sum_{i=1}^{\infty} 1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
+    &\overset{(1)}{=} \frac12 +\sum_{i=1}^{\infty} \ex\left[1_{i \leq \tauge}\left(\mge_i - \mge_{i-1}\right)\right]\\
+    &\overset{(2)}{=} \frac12 +\sum_{i=1}^{\infty} \ex\left[\mge_i - \mge_{i-1}\right]\\
+    &\overset{(3)}{=} \frac12 +\sum_{i=1}^{\infty} \ex\left[\ex\left[\mge_i - \mge_{i-1}\vert \xge_{i-1}\right]\right]\\
+    &\overset{(4)}{=} \frac12 +\varepsilon \sum_{i=1}^{\infty} \ex\left[\Delta_G\left(\xge_{i-1}\right)\right].\\
+    &\overset{(5)}{=} \frac12 +\varepsilon \; \ex\left[\sum_{i=1}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right].\\
 \end{align*}
 In $(1)$ we use the fact that the quantity we are trying to bound is a probability, thus is between $0$ and $1$, and thus we can swap the sum and the expectation.
 In $(2)$ we use a trick: we momentarily define $\mge_i = \mge_{\tauge}$ for $i > \tauge$, notice that this does not alter the expected value because for $i > \tauge$ the quantity $\mge_i - \mge_{i-1}=0$. In $(3)$ we use the law of total expectation. Finally, $(4)$ is justified right after.
@@ -235,7 +235,7 @@ Where $(1)$ is due to the fact that $\mghalf_0 = 1/2$, and translations do not c
     \end{cases}\\
     &= \begin{cases}
     \frac12 \Delta_G\left(\xghalf_{i - 1}\right) \text{ if win}\\
-    \frac12 -\Delta_G\left(\xghalf_{i - 1}\right)  \text{ if lose}\\
+    -\frac12 \Delta_G\left(\xghalf_{i - 1}\right)  \text{ if lose}\\
     \end{cases}\\
     &= \frac12 \Delta_G\left(\xghalf_{i - 1}\right)b_{i},
 \end{align*}
