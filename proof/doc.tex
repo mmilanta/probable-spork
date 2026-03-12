@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
 \newtheorem{lemma}{Lemma}
@@ -32,18 +33,18 @@
 \newcommand{\m}{M}
 \newcommand{\ex}{\mathbb{E}}
 \newcommand{\pr}{\mathbb{P}}
-\newcommand{\fair}{\mathcal{F}}
-\newcommand{\h}{h}\usepackage[margin=1in]{geometry}
+\newcommand{\fair}{\mathbf{F}}
+\newcommand{\h}{h}
 % ---------------------------------------
 
 \begin{document}
-\title{Optimal Game Structure Inequality}
+\title{Proof of the Optimal Tennis Match Inequality}
 \author{Marco Milanta}
 \date{February 15, 2026}
 \maketitle
 
 \begin{abstract}
-We prove the fairness--length inequality for general game graphs.
+We prove here the fairness--length inequality introduced in the blog post \href{https://mmilanta.github.io/optimal-tennis-match/}{Optimal Tennis Match}.
 \end{abstract}
 
 \section*{Problem Formalization}
