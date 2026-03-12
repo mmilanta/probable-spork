@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1773334838.41945 "/Users/marcomilanta/Documents/personal/probable-spork/proof/doc.tex" "doc.pdf" "doc" 1773334838.89368 0
-  "/Users/marcomilanta/Documents/personal/probable-spork/proof/doc.tex" 1773334838.21065 17380 43e4c04585459ec17af54b50450a8406 ""
+["pdflatex"] 1773335187.74992 "/Users/marcomilanta/Documents/personal/probable-spork/proof/doc.tex" "doc.pdf" "doc" 1773335188.20085 0
+  "/Users/marcomilanta/Documents/personal/probable-spork/proof/doc.tex" 1773335187.56443 17380 be884bdb26b121ecbe1a644da8896454 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -97,9 +97,9 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1771162932 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1771162878 3345738 11188833c796136b57cc091715916426 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "doc.aux" 1773334838.84065 380 5d7fd12aedb44f94fc9e16a3eb7537db "pdflatex"
-  "doc.out" 1773334838.70429 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "doc.tex" 1773334838.21065 17380 43e4c04585459ec17af54b50450a8406 ""
+  "doc.aux" 1773335188.14812 380 5d7fd12aedb44f94fc9e16a3eb7537db "pdflatex"
+  "doc.out" 1773335188.01574 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "doc.tex" 1773335187.56443 17380 be884bdb26b121ecbe1a644da8896454 ""
   (generated)
   "doc.aux"
   "doc.log"

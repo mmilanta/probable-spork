@@ -199,13 +199,13 @@ In $(2)$ we use a trick: we momentarily define $\mge_i = \mge_{\tauge}$ for $i >
 Finally we can compute the derivative of the probability of winning as the limit of the perturbation argument.
 \begin{align*}
     \frac{d}{dp} \pr\left(\xgp_\taugp = \win\right)  \Big\vert_{p=1/2} &= \lim_{\varepsilon \to 0} \frac{\pr\left(\xge_\tauge = \win\right) - \pr\left(\xghalf_\taughalf = \win\right)}{\varepsilon} \\
-    &= \lim_{\varepsilon \to 0} \frac{\frac12 + \varepsilon \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] - \frac12}{\varepsilon} \\
-    &= \lim_{\varepsilon \to 0} \ex\left[\sum_{i=0}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] \\
-    &= \ex\left[\sum_{i=0}^{\tau^{G, s, 1/2}} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right]. \\
+    &= \lim_{\varepsilon \to 0} \frac{\frac12 + \varepsilon \ex\left[\sum_{i=1}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] - \frac12}{\varepsilon} \\
+    &= \lim_{\varepsilon \to 0} \ex\left[\sum_{i=1}^{\tauge} \Delta_G\left(\xge_{i-1}\right)\right] \\
+    &= \ex\left[\sum_{i=1}^{\tau^{G, s, 1/2}} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right]. \\
 \end{align*}
 Thus, finally we have
 \begin{equation}\label{eq:fairness_formula}
-    \fair(G, s) = \ex\left[\sum_{i=0}^{\infty} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right].
+    \fair(G, s) = \ex\left[\sum_{i=1}^{\infty} \Delta_G\left(\x^{G, s, 1/2}_{i-1}\right)\right].
 \end{equation}
 This concludes the perturbation argument. 
 \subsection*{Variance identity}
@@ -259,10 +259,10 @@ This concludes the variance identity.
 \subsection*{Cauchy--Schwarz inequality}
 The last step to complete the proof is to use the Cauchy--Schwarz inequality:
 \begin{align*}
-    \fair(G, s)^2 &\overset{(1)}{=} \ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
-    &= \ex\left[\sum_{i=0}^{\taughalf} 1 \;\Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
-    &\overset{(2)}{\leq}\underbrace{\ex\left[\sum_{i=0}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)^2\right]}_{= 1 \text{ due to variance identity}} \ex\left[\sum_{i=0}^{\taughalf} 1\right]\\
-    &= \ex\left[\sum_{i=0}^{\taughalf} 1\right] = \ex\left[\taughalf\right].
+    \fair(G, s)^2 &\overset{(1)}{=} \ex\left[\sum_{i=1}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
+    &= \ex\left[\sum_{i=1}^{\taughalf} 1 \;\Delta_G\left(\xghalf_{i-1}\right)\right]^2 \\
+    &\overset{(2)}{\leq}\underbrace{\ex\left[\sum_{i=1}^{\taughalf} \Delta_G\left(\xghalf_{i-1}\right)^2\right]}_{= 1 \text{ due to variance identity}} \ex\left[\sum_{i=1}^{\taughalf} 1\right]\\
+    &= \ex\left[\sum_{i=1}^{\taughalf} 1\right] = \ex\left[\taughalf\right].
 \end{align*}
 Where $(1)$ is due to equation $(1)$ in the perturbation argument, and $(2)$ to the Cauchy--Schwarz inequality for sum of random variables. This concludes the proof.
 \end{document}
