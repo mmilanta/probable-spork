@@ -116,7 +116,7 @@ The proof is divided into three parts. First we do a perturbation argument to de
 \subsection*{Definitions}
 \begin{definition}[Value function]
     $$
-    \h_{(G)}: V \to [0,1], \quad\quad \h_{(G)}(v) = \pr\left( \xghalf_\taughalf = \win\right).
+    \h_{(G)}: V \to [0,1], \quad\quad \h_{(G)}(v) = \pr\left( \x^{\left(G, v, 1/2\right)}_{\tau^{\left(G, v, 1/2\right)}} = \win\right).
     $$
 \end{definition}
 Thus, $\h_{(G)}(v)$ is the probability for the first player to win, given that the first player is just as strong as the second one $(p= 1/2)$, and given that the current score is $v$.
@@ -237,7 +237,7 @@ Where $(1)$ is due to the fact that $\mghalf_0 = 1/2$, and translations do not c
     \frac12 \Delta_G\left(\xghalf_{i - 1}\right) \text{ if win}\\
     \frac12 -\Delta_G\left(\xghalf_{i - 1}\right)  \text{ if lose}\\
     \end{cases}\\
-    &= \frac12 \Delta_G\left(\xghalf_{i - 1}\right)b_i,
+    &= \frac12 \Delta_G\left(\xghalf_{i - 1}\right)b_{i},
 \end{align*}
 Where $b_i = 1$ if the first player manages to claim the $i$-th point, otherwise $-1$. Because the match is balanced, $b_i \sim \text{Rademacher}(1/2)$. Furgthermore, notice that $b_i \perp b_j\;\forall i \neq j$ due to the the second assumption of the theorem.
 
@@ -245,8 +245,8 @@ Where $b_i = 1$ if the first player manages to claim the $i$-th point, otherwise
     \var \left(\mghalf_\taughalf\right) &= \var\left(\mghalf_0 + \sum_{i=1}^{\taughalf} \left(\mghalf_i - \mghalf_{i-1}\right)\right) \\
     &\overset{(1)}{=}\var\left(\sum_{i=1}^{\taughalf}\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)\\
     &=\ex\left[\left(\sum_{i=1}^{\taughalf}\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)^2\right]\\
-    &=\ex\left[\sum_{i=1}^{\taughalf}\left(\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)^2 \right]+ \\ &\quad\quad\quad\quad\quad\quad + \underbrace{\ex\left[\sum_{i\neq i}^{\taughalf}\sum_{j\neq i}^{\taughalf}\frac14 b_{i-1}b_{j-1} \Delta_G\left(\xghalf_{i-1}
-    \right) \Delta_G\left(\xghalf_{j-1}\right)  b_{j-1} \right]}_{= 0 \text{ because } b_{i-1} \perp b_{j-1} \text{ for } i \neq j \text{ and } b_i \perp \Delta_G\left(\xghalf_{j}\right) \text { for } j \leq i}\\
+    &=\ex\left[\sum_{i=1}^{\taughalf}\left(\frac12 \Delta_G\left(\xghalf_{i-1}\right)  b_{i-1} \right)^2 \right]+ \\ &\quad\quad\quad\quad\quad\quad + \underbrace{\ex\left[\sum_{i\neq i}^{\taughalf}\sum_{j\neq i}^{\taughalf}\frac14 b_{i}b_{j} \Delta_G\left(\xghalf_{i-1}
+    \right) \Delta_G\left(\xghalf_{j}\right)  b_{j} \right]}_{= 0 \text{ because } b_{i} \perp b_{j} \text{ for } i \neq j \text{ and } b_i \perp \Delta_G\left(\xghalf_{j}\right) \text { for } j \leq i}\\
     &\overset{(2)}{=}\frac14\ex\left[\sum_{i=1}^{\taughalf}\Delta_G\left(\xghalf_{i-1}\right)^2 \right]\\
 \end{align*}
 
